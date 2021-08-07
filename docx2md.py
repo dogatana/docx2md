@@ -156,16 +156,6 @@ def parse_drawing(root):
     else:
         print(f"*** no pictures")
 
-def get_tagname(s):
-    index = s.find("}")
-    if index != -1:
-        return s[(index + 1):]
-    return "?";
-
-def read_file(file):
-    with open(file, mode="rb") as f:
-        return f.read()
-
 def decode_shape(gfxdata, file):
     decoded = base64.b64decode(gfxdata.replace("&#xA;", "\n"))
     open(file, "wb").write(decoded)
