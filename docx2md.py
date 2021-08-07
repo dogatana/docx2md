@@ -60,12 +60,21 @@ class NamespaceResolver:
 
 def parse_docx(file):
     docx = DocxFile(file)
+    save_xml(file, docx.document())
     doc = etree.fromstring(docx.document())
     strip_ns_prefix(doc)
     # resolver = NamespaceResolver(doc.nsmap)
 
     body = doc.xpath("//body")[0]
     parse_tag(body, 0)
+
+def save_xml(file, text):
+    # save for debug
+    xml_file = os.path.splitext(file)[0] + ".xml"
+    if os.path.exists(xml_file):
+        return
+    open(xml_file, "wb").write(text)
+    print("save to", xml_file )
 
 def strip_ns_prefix(tree):
     #xpath query for selecting all element nodes in namespace
