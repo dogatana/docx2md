@@ -85,28 +85,31 @@ def strip_ns_prefix(tree):
         element.tag = etree.QName(element).localname
     return tree
 
-IGNORE = [
-    "pPr", "rPr", "rFonts", "sectPr", "pgSz", "pgMar", "cols", "docGrid", 
-    "shapetype", "stroke", "path",
-    "pict", "textbox", "txbxContent"
-    "spacing", "ind", "b"
+STOP_PARSING = [
+    "pPr", "rPr", "sectPr", "pStyle", "wPr", "numPr", "ind", "shapetype", "tab"
 ]
-SHOW = [
-    "shape"
+NOT_PROCESS = [
+    "shape", "txbxContent", "pict"
 ]
 def parse_tag(root, depth):
+    if root.tag in STOP_PARSING:
+        return
     for child in root.getchildren():
         if  child is None:
             print("** none")
             continue
         tag = child.tag
+        if tag in STOP_PARSING:
+            continue
         if tag == "p":
-            parse_tag(child, depth + 1)
-            print("\n")
+            parse_p(child, depth + 1)
         elif tag == "r":
             parse_tag(child, depth + 1)
         elif tag == "br":
-            print("<br>")
+            if "page" in child.attrib.values():
+                print('<div class="page"></div>')
+            else:
+                print("<br>")
         elif tag == "t":
             print(child.text or " ", end="")
         elif tag == "drawing":
@@ -118,19 +121,34 @@ def parse_tag(root, depth):
         elif tag == "lastRenderedPageBreak":
             print('\n\n<div class="break"></div>\n')
         else:
-            # if tag not in IGNORE:
-            #     print("*** unkown", f"<{tag}>")
-            if tag in SHOW:
-                print("#", tag)
+            if tag not in NOT_PROCESS:
+                print("#", tag) 
             parse_tag(child, depth + 1)
             
+def parse_p(root, depth):
+    tags = root.xpath("./pPr/numPr")
+    if tags:
+        ilvl = int(get_value(tags[0].xpath("./ilvl")[0]))
+        numId = int(get_value(tags[0].xpath("./numId")[0]))
+        print("    " * ilvl, end="")
+        print("* " if numId == 1 else "1. ", end="")
+    for child in root.getchildren():
+        parse_tag(child, depth + 1)
+    print("")
+
+def get_value(tag):
+    for key, value in tag.attrib.items():
+        if key.endswith("}val"):
+            return value
+    raise RuntimeError("value not found:", tag.attrib)
+
 def parse_drawing(root):
     tags = root.xpath(".//cNvPr")
-    if len(tags) == 1 and "id" in tags[0].attrib:
+    if tags and "id" in tags[0].attrib:
         id = tags[0].attrib["id"]
         print(f'<img src="image{id}.png">')
     else:
-        print(f"*** {len(tags)} pictures")
+        print(f"*** no pictures")
 
 def get_tagname(s):
     index = s.find("}")
