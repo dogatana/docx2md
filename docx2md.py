@@ -126,21 +126,26 @@ def parse_tag(root, depth):
             parse_tag(child, depth + 1)
             
 def parse_p(root, depth):
-    tags = root.xpath("./pPr/numPr")
-    if tags:
-        ilvl = int(get_value(tags[0].xpath("./ilvl")[0]))
-        numId = int(get_value(tags[0].xpath("./numId")[0]))
-        print("    " * ilvl, end="")
-        print("* " if numId == 1 else "1. ", end="")
+    """ parse paragpha """
+    numPr = get_first_element(root, "./pPr/numPr")
+    if numPr:
+        ilvl = get_val(get_first_element(numPr, "./ilvl"))
+        numId = get_val(get_first_element(numPr, "./numId"))
+        print("    " * int(ilvl), end="")
+        print("* " if numId == "1" else "1. ", end="")
     for child in root.getchildren():
         parse_tag(child, depth + 1)
     print("")
 
-def get_value(tag):
+def get_first_element(tree, xpath):
+    tags = tree.xpath(xpath)
+    return tags[0] if len(tags) > 0 else None
+    
+def get_val(tag):
     for key, value in tag.attrib.items():
         if key.endswith("}val"):
             return value
-    raise RuntimeError("value not found:", tag.attrib)
+    return None
 
 def parse_drawing(root):
     tags = root.xpath(".//cNvPr")
