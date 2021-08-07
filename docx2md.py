@@ -61,11 +61,12 @@ class NamespaceResolver:
 def parse_docx(file):
     docx = DocxFile(file)
     save_xml(file, docx.document())
-    doc = etree.fromstring(docx.document())
-    strip_ns_prefix(doc)
+
+    tree = etree.fromstring(docx.document())
+    strip_ns_prefix(tree)
     # resolver = NamespaceResolver(doc.nsmap)
 
-    body = doc.xpath("//body")[0]
+    body = get_first_element(tree, "//body")
     parse_tag(body, 0)
 
 def save_xml(file, text):
@@ -148,10 +149,10 @@ def get_val(tag):
             return value
     return None
 
-def parse_drawing(root):
-    tags = root.xpath(".//cNvPr")
-    if tags and "id" in tags[0].attrib:
-        id = tags[0].attrib["id"]
+def parse_drawing(node):
+    tag = get_first_element(node, ".//cNvPr")
+    if tag and "id" in tag.attrib:
+        id = tag.attrib["id"]
         print(f'<img src="image{id}.png">')
     else:
         print(f"*** no pictures")
