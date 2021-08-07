@@ -99,6 +99,8 @@ STOP_PARSING = [
 NOT_PROCESS = [
     "shape", "txbxContent"
 ]
+
+
 def parse_node(of, node, depth):
     if node.tag in STOP_PARSING:
         return
@@ -128,7 +130,7 @@ def parse_node(of, node, depth):
             parse_node(of, child, depth + 1)
             # print("\n\n--\n")
         elif tag == "tbl":
-            print("<table>", file=of)
+            print("\n<table>", file=of)
             parse_node(of, child, depth + 1)
             print("</table>", file=of)
         elif tag == "tr":
@@ -137,29 +139,55 @@ def parse_node(of, node, depth):
             print("</tr>", file=of)
         elif tag == "tc":
             print("<td>", end="", file=of)
-            parse_node(of, child, depth + 1)
+            parse_tc(of, child, depth + 1)
             print("</td>", file=of)
         else:
             if tag not in NOT_PROCESS:
                 print("#", tag) 
             parse_node(of, child, depth + 1)
 
+def parse_tc(of, node, depth):
+    sub_of = io.StringIO()
+    parse_node(sub_of, node, depth + 1)
+    sub_text = sub_of.getvalue().strip()
+    text = re.sub(r"\n+", "<br>", sub_text)
+    print(text, end="", file=of)
+
+in_list = False
 def parse_p(of, node, depth):
+    global in_list
     """ parse paragraph """
-    numPr = get_first_element(node, "./pPr/numPr")
-    if numPr is None:
+    pStyle = get_first_element(node, ".//pStyle")
+    if pStyle is None:
+        if in_list:
+            in_list = False
         print("", file=of)
+        parse_node(of, node, depth + 1)
+        print("", file=of)
+        return
+
+    # ul, ol, h<n> should have ilvl
+    ilvl = get_first_element(node, ".//ilvl")
+    if ilvl is None:
+        return
+
+    if not in_list:
+        print("", file=of)
+        in_list = True
+    style = get_attr(pStyle, "val")
+    sub_of = io.StringIO()
+    parse_node(sub_of, node, depth + 1)
+    sub_text = sub_of.getvalue().strip()
+    if not sub_text:
+        return
+
+    level = int(get_attr(ilvl, "val"))
+    if style[0] == "a":
+        print("    " * level + "*", sub_text, file=of)
+    elif style.isdigit():
+        print("#" * (int(style)), sub_text, file=of)
     else:
-        # OL or UL
-        ilvl = get_attr(get_first_element(numPr, "./ilvl"), "val")
-        numId = get_attr(get_first_element(numPr, "./numId"), "val") 
-        if numId in ["1", "2", "3"]:
-            print("    " * int(ilvl) + "* ", end="", file=of)
-        else:
-            print("unexpeced numId:", numId)
-    for child in node.getchildren():
-        parse_node(of, child, depth + 1)
-    print("", file=of)
+        raise RuntimeError("pStyle: " + style) 
 
 def get_first_element(tree, xpath):
     tags = tree.xpath(xpath)
