@@ -3,6 +3,8 @@ import os.path
 import re
 import base64
 import io
+import re
+
 import zipfile
 
 from lxml import etree
@@ -67,7 +69,11 @@ def parse_docx(file):
     # resolver = NamespaceResolver(doc.nsmap)
 
     body = get_first_element(tree, "//body")
-    parse_tag(body, 0)
+
+    of = io.StringIO()
+    parse_tag(of, body, 0)
+    text = re.sub(r"\n{2,}", "\n\n", of.getvalue())
+    print("-" * 10, text.strip(), "-" * 10, sep="\n")
 
 def save_xml(file, text):
     # save for debug
@@ -90,12 +96,12 @@ STOP_PARSING = [
     "pPr", "rPr", "sectPr", "pStyle", "wPr", "numPr", "ind", "shapetype", "tab"
 ]
 NOT_PROCESS = [
-    "shape", "txbxContent", "pict"
+    "shape", "txbxContent"
 ]
-def parse_tag(root, depth):
-    if root.tag in STOP_PARSING:
+def parse_tag(of, node, depth):
+    if node.tag in STOP_PARSING:
         return
-    for child in root.getchildren():
+    for child in node.getchildren():
         if  child is None:
             print("** none")
             continue
@@ -103,42 +109,42 @@ def parse_tag(root, depth):
         if tag in STOP_PARSING:
             continue
         if tag == "p":
-            parse_p(child, depth + 1)
+            parse_p(of, child, depth + 1)
         elif tag == "r":
-            parse_tag(child, depth + 1)
+            parse_tag(of, child, depth + 1)
         elif tag == "br":
             attr = ' class="page"' 
             if get_attr(child, "type") == "page":
-                print('\n<div class="break"></div>\n')
+                print('\n<div class="break"></div>\n', file=of)
             else:
-                print("<br>", end="")
+                print("<br>", end="", file=of)
         elif tag == "t":
-            print(child.text or " ", end="")
+            print(child.text or " ", end="", file=of)
         elif tag == "drawing":
-            parse_drawing(child)
+            parse_drawing(of, child)
         elif tag == "textbox":
             # print("\n\n--\n")
-            parse_tag(child, depth + 1)
+            parse_tag(of, child, depth + 1)
             # print("\n\n--\n")
         elif tag == "lastRenderedPageBreak":
-            print('\n\n<div class="break"></div>\n')
+            print('\n\n<div class="break"></div>\n', file=of)
         else:
             if tag not in NOT_PROCESS:
                 print("#", tag) 
-            parse_tag(child, depth + 1)
+            parse_tag(of, child, depth + 1)
             
-def parse_p(root, depth):
+def parse_p(of, node, depth):
     """ parse paragraph """
-    numPr = get_first_element(root, "./pPr/numPr")
-    if numPr:
+    numPr = get_first_element(node, "./pPr/numPr")
+    if numPr is not None:
         # OL or UL
         ilvl = get_attr(get_first_element(numPr, "./ilvl"), "val")
         numId = get_attr(get_first_element(numPr, "./numId"), "val") # "1" for UL, "2" for OL
-        print("    " * int(ilvl), end="")
-        print("* " if numId == "1" else "1. ", end="")
-    for child in root.getchildren():
-        parse_tag(child, depth + 1)
-    print("")
+        print("    " * int(ilvl), end="", file=of)
+        print("* " if numId == "1" else "1. ", end="", file=of)
+    for child in node.getchildren():
+        parse_tag(of, child, depth + 1)
+    print("", file=of)
 
 def get_first_element(tree, xpath):
     tags = tree.xpath(xpath)
@@ -156,11 +162,11 @@ def get_val(tag):
             return value
     return None
 
-def parse_drawing(node):
+def parse_drawing(of, node):
     tag = get_first_element(node, ".//cNvPr")
     if tag is not None and "id" in tag.attrib:
         id = tag.attrib["id"]
-        print(f'<img src="image{id}.png">')
+        print(f'<img src="image{id}.png">', file=of)
     else:
         print(f"*** no pictures")
 
