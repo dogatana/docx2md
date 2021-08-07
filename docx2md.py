@@ -71,7 +71,7 @@ def parse_docx(file):
     body = get_first_element(tree, "//body")
 
     of = io.StringIO()
-    parse_tag(of, body, 0)
+    parse_node(of, body, 0)
     text = re.sub(r"\n{2,}", "\n\n", of.getvalue()).strip()
     print("-" * 10, text, "-" * 10, sep="\n")
     open("out.md", "w", encoding="utf-8").write(text)
@@ -99,7 +99,7 @@ STOP_PARSING = [
 NOT_PROCESS = [
     "shape", "txbxContent"
 ]
-def parse_tag(of, node, depth):
+def parse_node(of, node, depth):
     if node.tag in STOP_PARSING:
         return
     for child in node.getchildren():
@@ -112,7 +112,7 @@ def parse_tag(of, node, depth):
         if tag == "p":
             parse_p(of, child, depth + 1)
         elif tag == "r":
-            parse_tag(of, child, depth + 1)
+            parse_node(of, child, depth + 1)
         elif tag == "br":
             attr = ' class="page"' 
             if get_attr(child, "type") == "page":
@@ -125,28 +125,24 @@ def parse_tag(of, node, depth):
             parse_drawing(of, child)
         elif tag == "textbox":
             # print("\n\n--\n")
-            parse_tag(of, child, depth + 1)
+            parse_node(of, child, depth + 1)
             # print("\n\n--\n")
         elif tag == "tbl":
             print("<table>", file=of)
-            parse_tag(of, child, depth + 1)
+            parse_node(of, child, depth + 1)
             print("</table>", file=of)
         elif tag == "tr":
             print("<tr>", file=of)
-            parse_tag(of, child, depth + 1)
+            parse_node(of, child, depth + 1)
             print("</tr>", file=of)
         elif tag == "tc":
             print("<td>", end="", file=of)
-            parse_tag(of, child, depth + 1)
+            parse_node(of, child, depth + 1)
             print("</td>", file=of)
         else:
             if tag not in NOT_PROCESS:
                 print("#", tag) 
-            parse_tag(of, child, depth + 1)
-            
-def parse_children(of, node, depth):
-    for child in node.getchildren():
-        parse_tag(of, child, depth + 1)
+            parse_node(of, child, depth + 1)
 
 def parse_p(of, node, depth):
     """ parse paragraph """
@@ -162,7 +158,7 @@ def parse_p(of, node, depth):
         else:
             print("unexpeced numId:", numId)
     for child in node.getchildren():
-        parse_tag(of, child, depth + 1)
+        parse_node(of, child, depth + 1)
     print("", file=of)
 
 def get_first_element(tree, xpath):
@@ -172,12 +168,6 @@ def get_first_element(tree, xpath):
 def get_attr(tag, name):
     for key, value in tag.attrib.items():
         if key.endswith("}" + name):
-            return value
-    return None
-
-def get_val(tag):
-    for key, value in tag.attrib.items():
-        if key.endswith("}val"):
             return value
     return None
 
