@@ -126,11 +126,12 @@ def parse_tag(root, depth):
             parse_tag(child, depth + 1)
             
 def parse_p(root, depth):
-    """ parse paragpha """
+    """ parse paragraph """
     numPr = get_first_element(root, "./pPr/numPr")
     if numPr:
+        # OL or UL
         ilvl = get_val(get_first_element(numPr, "./ilvl"))
-        numId = get_val(get_first_element(numPr, "./numId"))
+        numId = get_val(get_first_element(numPr, "./numId")) # "1" for UL, "2" for OL
         print("    " * int(ilvl), end="")
         print("* " if numId == "1" else "1. ", end="")
     for child in root.getchildren():
