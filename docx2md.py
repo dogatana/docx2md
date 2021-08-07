@@ -107,10 +107,11 @@ def parse_tag(root, depth):
         elif tag == "r":
             parse_tag(child, depth + 1)
         elif tag == "br":
-            if "page" in child.attrib.values():
-                print('<div class="page"></div>')
+            attr = ' class="page"' 
+            if get_attr(child, "type") == "page":
+                print('\n<div class="break"></div>\n')
             else:
-                print("<br>")
+                print("<br>", end="")
         elif tag == "t":
             print(child.text or " ", end="")
         elif tag == "drawing":
@@ -131,8 +132,8 @@ def parse_p(root, depth):
     numPr = get_first_element(root, "./pPr/numPr")
     if numPr:
         # OL or UL
-        ilvl = get_val(get_first_element(numPr, "./ilvl"))
-        numId = get_val(get_first_element(numPr, "./numId")) # "1" for UL, "2" for OL
+        ilvl = get_attr(get_first_element(numPr, "./ilvl"), "val")
+        numId = get_attr(get_first_element(numPr, "./numId"), "val") # "1" for UL, "2" for OL
         print("    " * int(ilvl), end="")
         print("* " if numId == "1" else "1. ", end="")
     for child in root.getchildren():
@@ -143,6 +144,12 @@ def get_first_element(tree, xpath):
     tags = tree.xpath(xpath)
     return tags[0] if len(tags) > 0 else None
     
+def get_attr(tag, name):
+    for key, value in tag.attrib.items():
+        if key.endswith("}" + name):
+            return value
+    return None
+
 def get_val(tag):
     for key, value in tag.attrib.items():
         if key.endswith("}val"):
@@ -151,7 +158,7 @@ def get_val(tag):
 
 def parse_drawing(node):
     tag = get_first_element(node, ".//cNvPr")
-    if tag and "id" in tag.attrib:
+    if tag is not None and "id" in tag.attrib:
         id = tag.attrib["id"]
         print(f'<img src="image{id}.png">')
     else:
