@@ -72,8 +72,9 @@ def parse_docx(file):
 
     of = io.StringIO()
     parse_tag(of, body, 0)
-    text = re.sub(r"\n{2,}", "\n\n", of.getvalue())
-    print("-" * 10, text.strip(), "-" * 10, sep="\n")
+    text = re.sub(r"\n{2,}", "\n\n", of.getvalue()).strip()
+    print("-" * 10, text, "-" * 10, sep="\n")
+    open("out.md", "w", encoding="utf-8").write(text)
 
 def save_xml(file, text):
     # save for debug
@@ -126,22 +127,40 @@ def parse_tag(of, node, depth):
             # print("\n\n--\n")
             parse_tag(of, child, depth + 1)
             # print("\n\n--\n")
-        elif tag == "lastRenderedPageBreak":
-            print('\n\n<div class="break"></div>\n', file=of)
+        elif tag == "tbl":
+            print("<table>", file=of)
+            parse_tag(of, child, depth + 1)
+            print("</table>", file=of)
+        elif tag == "tr":
+            print("<tr>", file=of)
+            parse_tag(of, child, depth + 1)
+            print("</tr>", file=of)
+        elif tag == "tc":
+            print("<td>", end="", file=of)
+            parse_tag(of, child, depth + 1)
+            print("</td>", file=of)
         else:
             if tag not in NOT_PROCESS:
                 print("#", tag) 
             parse_tag(of, child, depth + 1)
             
+def parse_children(of, node, depth):
+    for child in node.getchildren():
+        parse_tag(of, child, depth + 1)
+
 def parse_p(of, node, depth):
     """ parse paragraph """
     numPr = get_first_element(node, "./pPr/numPr")
-    if numPr is not None:
+    if numPr is None:
+        print("", file=of)
+    else:
         # OL or UL
         ilvl = get_attr(get_first_element(numPr, "./ilvl"), "val")
-        numId = get_attr(get_first_element(numPr, "./numId"), "val") # "1" for UL, "2" for OL
-        print("    " * int(ilvl), end="", file=of)
-        print("* " if numId == "1" else "1. ", end="", file=of)
+        numId = get_attr(get_first_element(numPr, "./numId"), "val") 
+        if numId in ["1", "2", "3"]:
+            print("    " * int(ilvl) + "* ", end="", file=of)
+        else:
+            print("unexpeced numId:", numId)
     for child in node.getchildren():
         parse_tag(of, child, depth + 1)
     print("", file=of)
