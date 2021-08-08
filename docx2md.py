@@ -187,6 +187,11 @@ def parse_tbl(of, node, depth):
             if not prop["merged"] or prop["merge_count"] != 0:
                 print(f"<td{attr}>{text}</td>", file=of)
             x += colspan
+        gridAfter =get_first_element(tag_tr, ".//gridAfter")
+        if gridAfter is not None:
+            val = len(get_attr(gridAfter, "val"))
+            for _ in range(val):
+                print("<td></td>", file=of)
         print("</tr>", file=of)
     print("</table>", file=of)
 
@@ -216,9 +221,19 @@ def get_table_properties(node):
             copied_prop["span"] = 0
             for _ in range(span - 1):
                 row_property.append(copied_prop)
+        gridAfter =get_first_element(tag_tr, ".//gridAfter")
+        if gridAfter is not None:
+            val = len(get_attr(gridAfter, "val"))
+            for _ in range(val):
+                row_property.append({"span": 1, "merged": False, "merge_count": 0})
         properties.append(row_property)
+    print("y", len(properties))
+    print("x", len(properties[0]))
+    print(properties)
+    print(get_sub_text(node))
     for y in range(len(properties) - 1):
         for x in range(len(properties[0])):
+            print(y, x)
             if properties[y][x]["merge_count"] > 0:
                 count = 0
                 for ynext in range(y + 1, len(properties)):
