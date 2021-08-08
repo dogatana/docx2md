@@ -10,7 +10,7 @@ import zipfile
 from lxml import etree
 
 
-class InvalidDocxfileError(RuntimeError):
+class InvalidDocxFileError(RuntimeError):
     pass
 
 
