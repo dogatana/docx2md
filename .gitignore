@@ -1,8 +1,9 @@
 sample/
 temp/
+~*
+.~*
 *.pyc
-*.docx
-*.txt
-*.xml
 *.md
+*.xml
+tests/data/*
 
