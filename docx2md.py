@@ -61,18 +61,6 @@ class DocxFile:
         self.docx.close()
         self.docx = None
 
-
-class NamespaceResolver:
-    def __init__(self, nsmap):
-        self.map = {}
-        for k, v in nsmap.items():
-            self.map[v] = k
-
-    def tag(self, name):
-        m = re.search(r"\{(.*?)\}(.*)", name)
-        return f"{self.map[m.group(1)]}:{m.group(2)}"
-
-
 def parse_docx(file):
     docx = DocxFile(file)
     save_xml(file, docx.document())
