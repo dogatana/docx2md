@@ -153,30 +153,112 @@ def parse_node(of, node, depth):
             parse_node(of, child, depth + 1)
             # print("\n\n--\n")
         elif tag == "tbl":
-            print("\n<table>", file=of)
-            parse_node(of, child, depth + 1)
-            print("</table>", file=of)
+            parse_tbl(of, child, depth)
+            # print("\n<table>", file=of)
+            # parse_node(of, child, depth + 1)
+            # print("</table>", file=of)
         elif tag == "tr":
             print("<tr>", file=of)
             parse_node(of, child, depth + 1)
             print("</tr>", file=of)
         elif tag == "tc":
-            print("<td>", end="", file=of)
             parse_tc(of, child, depth + 1)
-            print("</td>", file=of)
         else:
             if tag not in NOT_PROCESS:
                 print("#", tag)
             parse_node(of, child, depth + 1)
 
 
-def parse_tc(of, node, depth):
-    sub_of = io.StringIO()
-    parse_node(sub_of, node, depth + 1)
-    sub_text = sub_of.getvalue().strip()
-    text = re.sub(r"\n+", "<br>", sub_text)
-    print(text, end="", file=of)
+def parse_tbl(of, node, depth):
+    properties = get_table_properties(node)
+    print("\n<table>", file=of)
+    for y, tag_tr in enumerate(node.xpath(".//tr")):
+        print("<tr>", file=of)
+        x = 0
+        for tag_tc in tag_tr.xpath(".//tc"):
+            prop = properties[y][x]
+            colspan = prop["span"]
+            attr = "" if colspan <= 1 else f' colspan="{colspan}"'
+            rowspan = prop["merge_count"]
+            attr += "" if rowspan == 0 else f' rowspan="{rowspan}"'
 
+            sub_text = get_sub_text(tag_tc)
+            text = re.sub(r"\n+", "<br>", sub_text)
+            if not prop["merged"] or prop["merge_count"] != 0:
+                print(f"<td{attr}>{text}</td>", file=of)
+            x += colspan
+        print("</tr>", file=of)
+    print("</table>", file=of)
+
+def get_table_properties(node):
+    properties = []
+    for tag_tr in node.xpath(".//tr"):
+        row_property = []
+        for tag_tc in tag_tr.xpath(".//tc"):
+            span = 1
+            gridSpan = get_first_element(tag_tc, ".//gridSpan")
+            if gridSpan is not None:
+                span = int(get_attr(gridSpan, "val"))
+            merged = False
+            merge_count = 0
+            vMerge = get_first_element(tag_tc, ".//vMerge")
+            if vMerge is not None:
+                merged = True
+                val = get_attr(vMerge, "val")
+                merge_count = 1 if val == "restart" else 0
+            prop = { 
+                "span": span, 
+                "merged": merged, 
+                "merge_count": merge_count
+            }
+            row_property.append(prop)
+            copied_prop = prop.copy()
+            copied_prop["span"] = 0
+            for _ in range(span - 1):
+                row_property.append(copied_prop)
+        properties.append(row_property)
+    for y in range(len(properties) - 1):
+        for x in range(len(properties[0])):
+            if properties[y][x]["merge_count"] > 0:
+                count = 0
+                for ynext in range(y + 1, len(properties)):
+                    cell = properties[ynext][x]
+                    if cell["merged"] and cell["merge_count"] == 0:
+                        count += 1
+                    elif not cell["merged"] or cell["merge_count"] > 0:
+                        break
+                properties[y][x]["merge_count"] += count
+    return properties
+    
+    for y in range(len(properties)):
+        for x in range(len(properties[0])):
+            print(y, x, properties[y][x])
+    
+
+
+            
+
+
+
+
+def parse_tc(of, node, depth):
+    sub_text = get_sub_text(node)
+    text = re.sub(r"\n+", "<br>", sub_text)
+
+    attr = ""
+    span = get_first_element(node, ".//gridSpan")
+    if span is not None:
+        val = get_attr(span, "val")
+        attr = f' colspan="{val}"'
+    print(f"<td{attr}>", end="", file=of)
+    print(text, end="", file=of)
+    print("</td>", file=of)
+
+
+def get_sub_text(node):
+    of = io.StringIO();
+    parse_node(of, node, 0)
+    return of.getvalue().strip()
 
 in_list = False
 
