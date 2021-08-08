@@ -84,7 +84,7 @@ def parse_docx(file):
     body = get_first_element(tree, "//body")
 
     of = io.StringIO()
-    parse_node(of, body, 0)
+    parse_node(of, body)
     text = re.sub(r"\n{2,}", "\n\n", of.getvalue()).strip()
     print("-" * 10, text, "-" * 10, sep="\n")
     open("out.md", "w", encoding="utf-8").write(text)
@@ -124,7 +124,7 @@ STOP_PARSING = [
 NOT_PROCESS = ["shape", "txbxContent"]
 
 
-def parse_node(of, node, depth):
+def parse_node(of, node):
     if node.tag in STOP_PARSING:
         return
     for child in node.getchildren():
@@ -135,9 +135,9 @@ def parse_node(of, node, depth):
         if tag in STOP_PARSING:
             continue
         if tag == "p":
-            parse_p(of, child, depth + 1)
+            parse_p(of, child)
         elif tag == "r":
-            parse_node(of, child, depth + 1)
+            parse_node(of, child)
         elif tag == "br":
             attr = ' class="page"'
             if get_attr(child, "type") == "page":
@@ -150,26 +150,24 @@ def parse_node(of, node, depth):
             parse_drawing(of, child)
         elif tag == "textbox":
             # print("\n\n--\n")
-            parse_node(of, child, depth + 1)
+            parse_node(of, child)
             # print("\n\n--\n")
         elif tag == "tbl":
-            parse_tbl(of, child, depth)
+            parse_tbl(of, child)
             # print("\n<table>", file=of)
-            # parse_node(of, child, depth + 1)
+            # parse_node(of, child)
             # print("</table>", file=of)
         elif tag == "tr":
             print("<tr>", file=of)
-            parse_node(of, child, depth + 1)
+            parse_node(of, child)
             print("</tr>", file=of)
         elif tag == "tc":
-            parse_tc(of, child, depth + 1)
+            parse_tc(of, child)
         else:
-            if tag not in NOT_PROCESS:
-                print("#", tag)
-            parse_node(of, child, depth + 1)
+            parse_node(of, child)
 
 
-def parse_tbl(of, node, depth):
+def parse_tbl(of, node):
     properties = get_table_properties(node)
     print("\n<table>", file=of)
     for y, tag_tr in enumerate(node.xpath(".//tr")):
@@ -256,7 +254,7 @@ def get_table_properties(node):
 
 
 
-def parse_tc(of, node, depth):
+def parse_tc(of, node):
     sub_text = get_sub_text(node)
     text = re.sub(r"\n+", "<br>", sub_text)
 
@@ -272,13 +270,13 @@ def parse_tc(of, node, depth):
 
 def get_sub_text(node):
     of = io.StringIO();
-    parse_node(of, node, 0)
+    parse_node(of, node)
     return of.getvalue().strip()
 
 in_list = False
 
 
-def parse_p(of, node, depth):
+def parse_p(of, node):
     global in_list
     """ parse paragraph """
     pStyle = get_first_element(node, ".//pStyle")
@@ -286,12 +284,12 @@ def parse_p(of, node, depth):
         if in_list:
             in_list = False
         print("", file=of)
-        parse_node(of, node, depth + 1)
+        parse_node(of, node)
         print("", file=of)
         return
 
     sub_of = io.StringIO()
-    parse_node(sub_of, node, depth + 1)
+    parse_node(sub_of, node)
     sub_text = sub_of.getvalue().strip()
     if not sub_text:
         return
