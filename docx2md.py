@@ -119,6 +119,7 @@ STOP_PARSING = [
     "ind",
     "shapetype",
     "tab",
+    "sdt"
 ]
 NOT_PROCESS = ["shape", "txbxContent"]
 
@@ -192,26 +193,25 @@ def parse_p(of, node, depth):
         print("", file=of)
         return
 
-    # ul, ol, h<n> should have ilvl
-    ilvl = get_first_element(node, ".//ilvl")
-    if ilvl is None:
-        return
-
-    if not in_list:
-        print("", file=of)
-        in_list = True
-    style = get_attr(pStyle, "val")
     sub_of = io.StringIO()
     parse_node(sub_of, node, depth + 1)
     sub_text = sub_of.getvalue().strip()
     if not sub_text:
         return
 
-    level = int(get_attr(ilvl, "val"))
-    if style[0] == "a":
-        print("    " * level + "*", sub_text, file=of)
-    elif style.isdigit():
+    if not in_list:
+        print("", file=of)
+        in_list = True
+
+    style = get_attr(pStyle, "val")
+    if style.isdigit():
         print("#" * (int(style)), sub_text, file=of)
+    elif style[0] == "a":
+        ilvl = get_first_element(node, ".//ilvl")
+        if ilvl is None:
+            return
+        level = int(get_attr(ilvl, "val"))
+        print("    " * level + "*", sub_text, file=of)
     else:
         raise RuntimeError("pStyle: " + style)
 
