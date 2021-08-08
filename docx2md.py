@@ -10,19 +10,19 @@ import zipfile
 from lxml import etree
 
 
-class InvalidDocxFileError(RuntimeError):
+class DocxFileError(RuntimeError):
     pass
 
 class DocxFile:
     def __init__(self, filename):
         if not os.path.isfile(filename):
-            raise FileNotFoundError()
+            raise FileNotFoundError(f"{filename} not found")
         if not zipfile.is_zipfile(filename):
-            raise InvalidDocxFileError()
+            raise DocxFileError(f"{filename} is not a zip file")
 
         self.docx = zipfile.ZipFile(filename)
         if "word/document.xml" not in self.namelist():
-            raise InvalidDocxFileError()
+            raise DocxFileError(f"{filename} does not include word/document.xml")
 
     def document(self):
         if self.docx is None:

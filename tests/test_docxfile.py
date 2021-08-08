@@ -1,6 +1,6 @@
 import unittest
 
-from docx2md import InvalidDocxFileError, DocxFile
+from docx2md import DocxFileError, DocxFile
 
 class TestDocxFile(unittest.TestCase):
 
@@ -9,11 +9,11 @@ class TestDocxFile(unittest.TestCase):
             DocxFile("notexist.txt")
 
     def test_not_zip_file(self):
-        with self.assertRaises(InvalidDocxFileError):
+        with self.assertRaises(DocxFileError):
             DocxFile("tests/data/dummy.txt")
 
     def test_not_dodx_file(self):
-        with self.assertRaises(InvalidDocxFileError):
+        with self.assertRaises(DocxFileError):
             DocxFile("tests/data/dummy.zip")
 
     def test_valid_docx_file(self):
