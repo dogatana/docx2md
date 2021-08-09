@@ -4,6 +4,7 @@ import os.path
 from docxfile import DocxFile, DocxFileError
 from converter import Converter
 from docxresources import DocxResources
+from mediasaver import MediaSaver
 
 
 def parse_docx(file):
@@ -14,6 +15,9 @@ def parse_docx(file):
     rel_text = docx.read("word/_rels/document.xml.rels")
     res = DocxResources(rel_text)
     
+    saver = MediaSaver(docx, "temp")
+    saver.save()
+    breakpoint()
     converter = Converter(xml_text, res)
     md_text = converter.convert()
 
