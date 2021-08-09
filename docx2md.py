@@ -2,7 +2,6 @@ import sys
 import os.path
 import re
 import io
-import re
 
 
 from lxml import etree
@@ -56,7 +55,7 @@ STOP_PARSING = [
     "ind",
     "shapetype",
     "tab",
-    "sdt"
+    "sdt",
 ]
 NOT_PROCESS = ["shape", "txbxContent"]
 
@@ -122,13 +121,14 @@ def parse_tbl(of, node):
             if not prop["merged"] or prop["merge_count"] != 0:
                 print(f"<td{attr}>{text}</td>", file=of)
             x += colspan
-        gridAfter =get_first_element(tag_tr, ".//gridAfter")
+        gridAfter = get_first_element(tag_tr, ".//gridAfter")
         if gridAfter is not None:
             val = len(get_attr(gridAfter, "val"))
             for _ in range(val):
                 print("<td></td>", file=of)
         print("</tr>", file=of)
     print("</table>", file=of)
+
 
 def get_table_properties(node):
     properties = []
@@ -146,17 +146,13 @@ def get_table_properties(node):
                 merged = True
                 val = get_attr(vMerge, "val")
                 merge_count = 1 if val == "restart" else 0
-            prop = { 
-                "span": span, 
-                "merged": merged, 
-                "merge_count": merge_count
-            }
+            prop = {"span": span, "merged": merged, "merge_count": merge_count}
             row_property.append(prop)
             copied_prop = prop.copy()
             copied_prop["span"] = 0
             for _ in range(span - 1):
                 row_property.append(copied_prop)
-        gridAfter =get_first_element(tag_tr, ".//gridAfter")
+        gridAfter = get_first_element(tag_tr, ".//gridAfter")
         if gridAfter is not None:
             val = len(get_attr(gridAfter, "val"))
             for _ in range(val):
@@ -179,16 +175,10 @@ def get_table_properties(node):
                         break
                 properties[y][x]["merge_count"] += count
     return properties
-    
+
     for y in range(len(properties)):
         for x in range(len(properties[0])):
             print(y, x, properties[y][x])
-    
-
-
-            
-
-
 
 
 def parse_tc(of, node):
@@ -206,9 +196,10 @@ def parse_tc(of, node):
 
 
 def get_sub_text(node):
-    of = io.StringIO();
+    of = io.StringIO()
     parse_node(of, node)
     return of.getvalue().strip()
+
 
 in_list = False
 
@@ -267,11 +258,6 @@ def parse_drawing(of, node):
         print(f'<img src="image{id}.png">', file=of)
     else:
         print(f"*** no pictures")
-
-
-def decode_shape(gfxdata, file):
-    decoded = base64.b64decode(gfxdata.replace("&#xA;", "\n"))
-    open(file, "wb").write(decoded)
 
 
 if __name__ == "__main__":
