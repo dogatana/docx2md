@@ -23,22 +23,6 @@ class DocxFile:
             raise FileNotFoundError
         return self.docx.read("word/document.xml")
 
-    def extract_images(self, target_dir):
-        images = self.__images()
-        if not images:
-            return
-
-        if not os.path.exists(target_dir):
-            os.makedirs(target_dir)
-
-        for image in images:
-            file = os.path.join(target_dir, image[len("word/media/") :])
-            with open(file, "wb") as f:
-                f.write(self.read(image))
-
-    def __images(self):
-        return [f for f in self.namelist() if f.startswith("word/media/")]
-
     def namelist(self):
         if self.docx is None:
             raise FileNotFoundError
