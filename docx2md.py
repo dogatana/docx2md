@@ -1,4 +1,5 @@
 import sys
+import os
 import os.path
 
 from docxfile import DocxFile, DocxFileError
@@ -8,21 +9,25 @@ from mediasaver import MediaSaver
 
 
 def parse_docx(file):
+    target_dir, _ = os.path.splitext(file)
+    os.makedirs(target_dir, exist_ok=True)
+
     docx = DocxFile(file)
     xml_text = docx.document()
-    save_xml(file, xml_text)
+
+    xml_file = os.path.splitext(os.path.basename(file))[0] + ".xml"
+    save_xml(os.path.join(target_dir, xml_file), xml_text)
 
     rel_text = docx.read("word/_rels/document.xml.rels")
     res = DocxResources(rel_text)
 
-    saver = MediaSaver(docx, "temp")
+    saver = MediaSaver(docx, target_dir)
     saver.save()
-    breakpoint()
+
     converter = Converter(xml_text, res)
     md_text = converter.convert()
 
-    print("-" * 10, md_text, "-" * 10, sep="\n")
-    open("out.md", "w", encoding="utf-8").write(md_text)
+    save_md(os.path.join(target_dir, "README.md"), md_text)
 
 
 def save_xml(file, text):
@@ -30,8 +35,11 @@ def save_xml(file, text):
     if os.path.exists(xml_file):
         return
     open(xml_file, "wb").write(text)
-    print("save to", xml_file)
+    print("# save to", xml_file)
 
+def save_md(file, text):
+    open(file, "w", encoding="utf-8").write(text)
+    print(f"# save {file}")
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
