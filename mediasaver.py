@@ -36,6 +36,9 @@ class MediaSaver:
             return
 
         print(f"# convert {file} to {base}.png")
-        im = Image.open(file)
-        im.save(base + ".png")
-        os.unlink(file)
+        try:
+            im = Image.open(file)
+            im.save(base + ".png")
+            os.unlink(file)
+        except:
+            print("# failed")
