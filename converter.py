@@ -222,14 +222,12 @@ class Converter:
         path = self.resources.get(id)
         if path is None:
             return
-        
+
         print(f'<img src="{self.correct_image_path(path)}">', file=of)
-    
+
     def correct_image_path(self, path):
         base, ext = os.path.splitext(path)
         if ext.lower() in [".png", ".bmp", ".jpg", ".jpeg"]:
             return path
         else:
             return base + ".png"
-
-

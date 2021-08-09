@@ -14,7 +14,7 @@ def parse_docx(file):
 
     rel_text = docx.read("word/_rels/document.xml.rels")
     res = DocxResources(rel_text)
-    
+
     saver = MediaSaver(docx, "temp")
     saver.save()
     breakpoint()
