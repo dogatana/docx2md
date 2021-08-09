@@ -26,6 +26,7 @@ class MediaSaver:
         self.correct_format(target_file)
 
     def extract_file(self, src, dst):
+        print(f"# extract {dst}")
         with open(dst, "wb") as f:
             f.write(self.docx.read(src))
 
