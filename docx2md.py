@@ -12,22 +12,29 @@ def parse_docx(file):
     target_dir, _ = os.path.splitext(file)
     os.makedirs(target_dir, exist_ok=True)
 
+    md_text = convert(file, target_dir, debug=True)
+    save_md(os.path.join(target_dir, "README.md"), md_text)
+
+def convert(file, target_dir, save_images=True, debug=True):
     docx = DocxFile(file)
     xml_text = docx.document()
 
-    xml_file = os.path.splitext(os.path.basename(file))[0] + ".xml"
-    save_xml(os.path.join(target_dir, xml_file), xml_text)
+    if debug:
+        xml_file = os.path.splitext(os.path.basename(file))[0] + ".xml"
+        save_xml(os.path.join(target_dir, xml_file), xml_text)
 
     rel_text = docx.read("word/_rels/document.xml.rels")
     res = DocxResources(rel_text)
 
-    saver = MediaSaver(docx, target_dir)
-    saver.save()
+    if save_images:
+        saver = MediaSaver(docx, target_dir)
+        saver.save()
 
     converter = Converter(xml_text, res)
     md_text = converter.convert()
 
-    save_md(os.path.join(target_dir, "README.md"), md_text)
+    return md_text
+
 
 
 def save_xml(file, text):
