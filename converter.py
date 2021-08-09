@@ -34,9 +34,9 @@ class Converter:
         return tags[0] if len(tags) > 0 else None
 
     def get_attr(self, node, attr_name):
-        for key, value in node.attrib.items():
-            if key.endswith("}" + attr_name):
-                return value
+        for k, v in node.attrib.items():
+            if k == attr_name or k.endswith("}" + attr_name):
+                return v
         return None
 
     def get_sub_text(self, node):

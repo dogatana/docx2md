@@ -13,11 +13,11 @@ class DocxResources:
             id = ""
             path = ""
             for k, v in node.attrib.items():
-                if "Id" in k:
+                if k == "Id" or k.endswith("}Id"):
                     id = v
-                if "Target" in k:
+                if k == "Target" or k.endswith("}Target"):
                     path = v
-            if k and v:
+            if id and path:
                 self.hash[id] = path
 
     def get(self, id):
