@@ -3,6 +3,7 @@ import os.path
 
 from docxfile import DocxFile, DocxFileError
 from converter import Converter
+from docxresources import DocxResources
 
 
 def parse_docx(file):
@@ -10,7 +11,10 @@ def parse_docx(file):
     xml_text = docx.document()
     save_xml(file, xml_text)
 
-    converter = Converter(xml_text)
+    rel_text = docx.read("word/_rels/document.xml.rels")
+    res = DocxResources(rel_text)
+    
+    converter = Converter(xml_text, res)
     md_text = converter.convert()
 
     print("-" * 10, md_text, "-" * 10, sep="\n")
@@ -18,7 +22,6 @@ def parse_docx(file):
 
 
 def save_xml(file, text):
-    # save for debug
     xml_file = os.path.splitext(file)[0] + ".xml"
     if os.path.exists(xml_file):
         return

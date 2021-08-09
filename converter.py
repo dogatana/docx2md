@@ -6,9 +6,10 @@ from lxml import etree
 
 
 class Converter:
-    def __init__(self, xml_text):
+    def __init__(self, xml_text, resources):
         self.tree = etree.fromstring(xml_text)
         self.__strip_ns_prefix()
+        self.resources = resources
 
     def __strip_ns_prefix(self):
         # xpath query for selecting all element nodes in namespace
@@ -212,9 +213,13 @@ class Converter:
             raise RuntimeError("pStyle: " + style)
 
     def parse_drawing(self, of, node):
-        tag = self.get_first_element(node, ".//cNvPr")
-        if tag is not None and "id" in tag.attrib:
-            id = tag.attrib["id"]
-            print(f'<img src="image{id}.png">', file=of)
-        else:
-            print(f"*** no pictures")
+        blip = self.get_first_element(node, ".//blip")
+        if blip is None:
+            return
+
+        id = self.get_attr(blip, "embed")
+        path = self.resources.get(id)
+        if path is None:
+            return
+        
+        print(f'<img src="{path}">', file=of)
