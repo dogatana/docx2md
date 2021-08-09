@@ -1,5 +1,6 @@
 import re
 import io
+import os.path
 
 
 from lxml import etree
@@ -222,4 +223,13 @@ class Converter:
         if path is None:
             return
         
-        print(f'<img src="{path}">', file=of)
+        print(f'<img src="{self.correct_image_path(path)}">', file=of)
+    
+    def correct_image_path(self, path):
+        base, ext = os.path.splitext(path)
+        if ext.lower() in [".png", ".bmp", ".jpg", ".jpeg"]:
+            return path
+        else:
+            return base + ".png"
+
+
