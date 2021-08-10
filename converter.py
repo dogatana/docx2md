@@ -111,7 +111,8 @@ class Converter:
 
     def parse_tbl(self, of, node):
         properties = self.get_table_properties(node)
-        print("\n<table>", file=of)
+        id = f"table{self.table_counter()}"
+        print(f'\n<table id="{id}">', file=of)
         for y, tag_tr in enumerate(node.xpath(".//tr")):
             print("<tr>", file=of)
             x = 0
@@ -233,7 +234,8 @@ class Converter:
         if path is None:
             return
 
-        print(f'<img src="{self.correct_image_path(path)}">', file=of)
+        id = f"image{self.image_counter()}"
+        print(f'<img src="{self.correct_image_path(path)}" id="{id}">', file=of)
 
     def correct_image_path(self, path):
         base, ext = os.path.splitext(path)
