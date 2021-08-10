@@ -11,6 +11,8 @@ class Converter:
         self.tree = etree.fromstring(xml_text)
         self.__strip_ns_prefix()
         self.resources = resources
+        self.image_counter = self.counter()
+        self.table_counter = self.counter()
 
     def __strip_ns_prefix(self):
         # xpath query for selecting all element nodes in namespace
@@ -19,6 +21,14 @@ class Converter:
         for element in self.tree.xpath(query):
             # replace element name with its local name
             element.tag = etree.QName(element).localname
+
+    def counter(self, start = 1):
+        count = start - 1
+        def inc():
+            nonlocal count
+            count += 1
+            return count
+        return inc
 
     def convert(self):
         self.in_list = False
