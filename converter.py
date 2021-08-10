@@ -7,12 +7,13 @@ from lxml import etree
 
 
 class Converter:
-    def __init__(self, xml_text, resources):
+    def __init__(self, xml_text, resources, use_md_table=True):
         self.tree = etree.fromstring(xml_text)
         self.__strip_ns_prefix()
         self.resources = resources
         self.image_counter = self.counter()
         self.table_counter = self.counter()
+        self.use_md_table = use_md_table
 
     def __strip_ns_prefix(self):
         # xpath query for selecting all element nodes in namespace
@@ -111,6 +112,34 @@ class Converter:
 
     def parse_tbl(self, of, node):
         properties = self.get_table_properties(node)
+        if self.use_md_table:
+            self.emit_md_table(of, node, len(properties[0]))
+        else:
+            self.emit_html_table(of, node, properties)
+
+    def emit_md_table(self, of, node, col_size):
+        print("", file=of)
+        print("| # " * (col_size) + "|", file=of)
+        print("|---" * col_size + "|", file=of)
+        for tag_tr in node.xpath(".//tr"):
+            print("|", end="", file=of)
+            for tag_tc in tag_tr.xpath(".//tc"):
+                span = 1
+                gridSpan = self.get_first_element(tag_tc, ".//gridSpan")
+                if gridSpan is not None:
+                    span = int(self.get_attr(gridSpan, "val"))
+                sub_text = self.get_sub_text(tag_tc)
+                text = re.sub(r"\n+", "<br>", sub_text)
+                print(text, end="", file=of)
+                print("|" * span, end="", file=of)
+            gridAfter = self.get_first_element(tag_tr, ".//gridAfter")
+            if gridAfter is not None:
+                val = len(self.get_attr(gridAfter, "val"))
+                print("|" * val, end="", file=of)
+            print("", file=of)
+        print("", file=of)
+
+    def emit_html_table(self, of, node, properties):
         id = f"table{self.table_counter()}"
         print(f'\n<table id="{id}">', file=of)
         for y, tag_tr in enumerate(node.xpath(".//tr")):
