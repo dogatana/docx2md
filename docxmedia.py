@@ -1,7 +1,9 @@
+import os
 import os.path
 import collections
 
 from lxml import etree
+from PIL import Image
 
 import utils
 
@@ -29,8 +31,8 @@ class DocxMedia:
         self.hash = {}
 
         root = etree.fromstring(docx.rels())
-            utils.strip_ns_prefix(root)
-            self.parse_tree(root)
+        utils.strip_ns_prefix(root)
+        self.parse_tree(root)
 
     def parse_tree(self, root):
         for tag in root.xpath("//Relationship"):
@@ -51,3 +53,26 @@ class DocxMedia:
 
     def get(self, id):
         return self.hash.get(id)
+
+    def save(self, target_dir):
+        for media in self.hash.values():
+            self.save_media(target_dir, media)
+    
+    def save_media(self, target_dir, media):
+        file = os.path.join(target_dir, media.path)
+        print("# save", file)
+        with open(file, "wb") as f:
+            f.write(self.docx.read("word/" + media.path))
+        
+        if media.use_alt:
+            print("# convert", media.path, "to", media.alt_path)
+            try:
+                im = Image.open(file)
+                im.save(os.path.join(target_dir, media.alt_path))
+                os.unlink(file)
+            except:
+                print("# failed")
+
+
+
+
