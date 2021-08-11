@@ -10,13 +10,13 @@ class DocxFileError(Exception):
 class DocxFile:
     def __init__(self, filename):
         if not os.path.isfile(filename):
-            raise FileNotFoundError(f"{filename} not found")
+            raise FileNotFoundError(f"{filename} not found.")
         if not zipfile.is_zipfile(filename):
-            raise DocxFileError(f"{filename} is not a zip file")
+            raise DocxFileError(f"{filename} is not a zip file.")
 
         self.docx = zipfile.ZipFile(filename)
         if "word/document.xml" not in self.namelist():
-            raise DocxFileError(f"{filename} does not include word/document.xml")
+            raise DocxFileError(f"{filename} is not a .docx file.")
 
     def document(self):
         if self.docx is None:
