@@ -8,9 +8,10 @@ from lxml import etree
 import utils
 
 class Converter:
-    def __init__(self, xml_text, resources, use_md_table=True):
+    def __init__(self, xml_text, media, use_md_table=True):
         self.tree = etree.fromstring(xml_text)
         utils.strip_ns_prefix(self.tree)
+        self.media = media
         self.image_counter = self.counter()
         self.table_counter = self.counter()
         self.use_md_table = use_md_table
@@ -245,13 +246,12 @@ class Converter:
         if blip is None:
             return
 
-        id = blip.attrib["embed"]
-        path = self.resources.get(id)
-        if path is None:
+        embed_id = blip.attrib["embed"]
+        if embed_id not in self.media:
             return
 
-        id = f"image{self.image_counter()}"
-        print(f'<img src="{self.correct_image_path(path)}" id="{id}">', file=of)
+        tag_id = f"image{self.image_counter()}"
+        print(f'<img src="{self.media[embed_id].alt_path}" id="{tag_id}">', file=of)
 
     def correct_image_path(self, path):
         base, ext = os.path.splitext(path)
