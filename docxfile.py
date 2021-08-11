@@ -3,7 +3,7 @@ import os.path
 import zipfile
 
 
-class DocxFileError(RuntimeError):
+class DocxFileError(Exception):
     pass
 
 
