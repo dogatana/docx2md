@@ -1,5 +1,4 @@
 import unittest
-import glob
 import os.path
 
 import docx2md
@@ -19,7 +18,10 @@ class TestDocxFile(unittest.TestCase):
         file = os.path.join("tests/data", name + ".docx")
 
         target_dir = os.path.splitext(file)[0]
-        md_result = docx2md.convert(docx2md.DocxFile(file), target_dir, use_md_table=False, save_images=False)
+
+        docx = docx2md.DocxFile(file)
+        media = docx2md.DocxMedia(docx)
+        md_result = docx2md.convert(docx, target_dir, media, False)
         md_text = self.read_md(target_dir)
 
         self.assertEqual(md_result, md_text)
