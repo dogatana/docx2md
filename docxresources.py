@@ -10,13 +10,12 @@ class Media:
     def __init__(self, id, path):
         self.path = self.alt_path = path
         self.id = id
-        self.check_path(path)
+        self.use_alt = False
+        self.check_alt(path)
 
-    def check_path(self, path):
+    def check_alt(self, path):
         base, ext = os.path.splitext(path)
-        if ext.lower() in ".png .gif .bmp .jpg .jpeg".split():
-            self.use_alt = False
-        else:
+        if ext.lower() not in ".png .gif .bmp .jpg .jpeg".split():
             self.use_alt = True
             self.alt_path = base + ".png"
 
