@@ -24,10 +24,11 @@ class Media:
 
 
 class DocxMedia:
-    def __init__(self, xml_text):
+    def __init__(self, docx):
+        self.docx = docx
         self.hash = {}
-        if xml_text is not None:
-            root = etree.fromstring(xml_text)
+
+        root = etree.fromstring(docx.rels())
             utils.strip_ns_prefix(root)
             self.parse_tree(root)
 
