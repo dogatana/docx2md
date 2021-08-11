@@ -6,7 +6,6 @@ import argparse
 from docxfile import DocxFile, DocxFileError
 from converter import Converter
 from docxmedia import DocxMedia
-from mediasaver import MediaSaver
 
 PROG = "docx2md"
 VERSION = "1.0.0"
