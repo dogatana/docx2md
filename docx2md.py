@@ -1,41 +1,74 @@
 import sys
 import os
 import os.path
+import argparse
 
 from docxfile import DocxFile, DocxFileError
 from converter import Converter
 from docxresources import DocxResources
 from mediasaver import MediaSaver
 
+PROG = "docx2md"
+VERSION = "1.0.0"
 
-def parse_docx(file):
-    target_dir, _ = os.path.splitext(file)
-    os.makedirs(target_dir, exist_ok=True)
+def main():
+    args = parse_args()
+    docx = create_docx(args.src)
+    check_target_dir(args.dst)
+    target_dir = os.path.dirname(args.dst)
 
-    md_text = convert(file, target_dir, debug=True)
-    save_md(os.path.join(target_dir, "README.md"), md_text)
-
-def convert(file, target_dir, save_images=True, debug=True):
-    docx = DocxFile(file)
     xml_text = docx.document()
+    if args.debug:
+        # save word/document.xml in docx
+        xml_file = os.path.join(target_dir, "document.xml")
+        print(f"# save {xml_file}")
+        save_xml(xml_file, xml_text)
+        with open(xml_file, mode="wb") as f:
+            f.write(xml_text)
 
-    if debug:
-        xml_file = os.path.splitext(os.path.basename(file))[0] + ".xml"
-        save_xml(os.path.join(target_dir, xml_file), xml_text)
+    md_text = convert(docx, target_dir, use_md_table=args.md_table, save_images=True)
+    save_md(args.dst, md_text)
 
-    rel_text = docx.read("word/_rels/document.xml.rels")
-    res = DocxResources(rel_text)
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("src", metavar="SRC", help="Microsoft Word file(.docx) to read")
+    parser.add_argument("dst", nargs="?", metavar="DST", help="Markdown file to write.  default is README.md", default="./README.md")
+    parser.add_argument("-m", "--md_table", action="store_true", help="use Markdown table notation instead of <table>", default=False)
+    parser.add_argument("-v", "--version", help="show version", action="version", version=f"{PROG} {VERSION}")
+    parser.add_argument("--debug", help="for debug", action="store_true", default=False)
+    return parser.parse_args()
 
+def create_docx(file):
+    try:
+        return DocxFile(file)
+    except Exception as e:
+        print(e)
+        exit()
+
+def check_target_dir(file):
+    dir = os.path.dirname(file)
+    if dir == "":
+        return
+    if  os.path.isdir(dir):
+        return
+    if os.path.exists(dir):
+        print(f"cannot write to {file}")
+        exit()
+    os.makedirs(dir)
+    
+def convert(docx, target_dir, use_md_table, save_images=False):
+    xml_text = docx.document()
     if save_images:
         saver = MediaSaver(docx, target_dir)
         saver.save()
 
-    converter = Converter(xml_text, res)
+    rels_text = docx.rels()
+    res = DocxResources(rels_text)
+
+    converter = Converter(xml_text, res, use_md_table=False)
     md_text = converter.convert()
 
     return md_text
-
-
 
 def save_xml(file, text):
     xml_file = os.path.splitext(file)[0] + ".xml"
@@ -49,11 +82,8 @@ def save_md(file, text):
     print(f"# save {file}")
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("usage: python docx2md <word.docx>")
-        exit()
-    file = sys.argv[1]
-    if not os.path.exists(file):
-        print(file, "does not exit.")
-        exit()
-    parse_docx(file)
+    main()
+
+
+
+
