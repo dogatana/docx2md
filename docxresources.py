@@ -1,24 +1,53 @@
+import os.path
+import collections
+
 from lxml import etree
 
+import utils
 
-class DocxResources:
+
+class Media:
+    def __init__(self, id, path):
+        self.path = self.alt_path = path
+        self.id = id
+        self.check_path(path)
+
+    def check_path(self, path):
+        base, ext = os.path.splitext(path)
+        if ext.lower() in ".png .gif .bmp .jpg .jpeg".split():
+            self.use_alt = False
+        else:
+            self.use_alt = True
+            self.alt_path = base + ".png"
+
+    def __repr__(self):
+        return f"Media(id={self.id}, path={self.path}, alt_path={self.alt_path}, use_alt={self.use_alt}"
+
+
+class DocxMedia:
     def __init__(self, xml_text):
         self.hash = {}
         if xml_text is not None:
             root = etree.fromstring(xml_text)
+            utils.strip_ns_prefix(root)
             self.parse_tree(root)
 
     def parse_tree(self, root):
-        for node in root.getchildren():
-            id = ""
-            path = ""
-            for k, v in node.attrib.items():
-                if k == "Id" or k.endswith("}Id"):
-                    id = v
-                if k == "Target" or k.endswith("}Target"):
-                    path = v
-            if id and path:
-                self.hash[id] = path
+        for tag in root.xpath("//Relationship"):
+            path = tag.attrib.get("Target")
+            if not path:
+                continue
+            if not path.startswith("media/"):
+                continue
+            id = tag.attrib.get("Id")
+            if id:
+                self.hash[id] = Media(id, path)
+
+    def __contains__(self, id):
+        return id in self.hash
+
+    def __getitem__(self, id):
+        return self.hash[id]
 
     def get(self, id):
         return self.hash.get(id)
