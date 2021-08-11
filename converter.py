@@ -8,7 +8,7 @@ from lxml import etree
 import utils
 
 class Converter:
-    def __init__(self, xml_text, media, use_md_table=True):
+    def __init__(self, xml_text, media, use_md_table):
         self.tree = etree.fromstring(xml_text)
         utils.strip_ns_prefix(self.tree)
         self.media = media
