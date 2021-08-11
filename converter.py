@@ -47,11 +47,6 @@ class Converter:
         tags = node.xpath(xpath)
         return tags[0] if len(tags) > 0 else None
 
-    def get_attr(self, node, attr_name):
-        for k, v in node.attrib.items():
-            if k == attr_name or k.endswith("}" + attr_name):
-                return v
-        return None
 
     def get_sub_text(self, node):
         of = io.StringIO()
@@ -87,7 +82,7 @@ class Converter:
                 self.parse_node(of, child)
             elif tag == "br":
                 attr = ' class="page"'
-                if self.get_attr(child, "type") == "page":
+                if child.attrib.get("type") == "page":
                     print('\n<div class="break"></div>\n', file=of)
                 else:
                     print("<br>", end="", file=of)
@@ -130,14 +125,14 @@ class Converter:
                 span = 1
                 gridSpan = self.get_first_element(tag_tc, ".//gridSpan")
                 if gridSpan is not None:
-                    span = int(self.get_attr(gridSpan, "val"))
+                    span = int(gridSpan.attrib["val"])
                 sub_text = self.get_sub_text(tag_tc)
                 text = re.sub(r"\n+", "<br>", sub_text)
                 print(text, end="", file=of)
                 print("|" * span, end="", file=of)
             gridAfter = self.get_first_element(tag_tr, ".//gridAfter")
             if gridAfter is not None:
-                val = len(self.get_attr(gridAfter, "val"))
+                val = int(gridAfter.attrib["val"])
                 print("|" * val, end="", file=of)
             print("", file=of)
         print("", file=of)
@@ -162,7 +157,7 @@ class Converter:
                 x += colspan
             gridAfter = self.get_first_element(tag_tr, ".//gridAfter")
             if gridAfter is not None:
-                val = len(self.get_attr(gridAfter, "val"))
+                val = int(gridAfter.attrib["val"])
                 for _ in range(val):
                     print("<td></td>", file=of)
             print("</tr>", file=of)
@@ -176,13 +171,13 @@ class Converter:
                 span = 1
                 gridSpan = self.get_first_element(tag_tc, ".//gridSpan")
                 if gridSpan is not None:
-                    span = int(self.get_attr(gridSpan, "val"))
+                    span = int(gridSpan.attrib["val"])
                 merged = False
                 merge_count = 0
                 vMerge = self.get_first_element(tag_tc, ".//vMerge")
                 if vMerge is not None:
                     merged = True
-                    val = self.get_attr(vMerge, "val")
+                    val = vMerge.attrib.get("val")
                     merge_count = 1 if val == "restart" else 0
                 prop = {"span": span, "merged": merged, "merge_count": merge_count}
                 row_property.append(prop)
@@ -192,7 +187,7 @@ class Converter:
                     row_property.append(copied_prop)
             gridAfter = self.get_first_element(tag_tr, ".//gridAfter")
             if gridAfter is not None:
-                val = len(self.get_attr(gridAfter, "val"))
+                val = int(gridAfter.attrib["val"])
                 for _ in range(val):
                     row_property.append({"span": 1, "merged": False, "merge_count": 0})
             properties.append(row_property)
@@ -217,7 +212,7 @@ class Converter:
         attr = ""
         span = self.get_first_element(node, ".//gridSpan")
         if span is not None:
-            val = self.get_attr(span, "val")
+            val = span.attrib["val"]
             attr = f' colspan="{val}"'
         print(f"<td{attr}>", end="", file=of)
         print(text, end="", file=of)
@@ -244,14 +239,14 @@ class Converter:
             print("", file=of)
             self.in_list = True
 
-        style = self.get_attr(pStyle, "val")
+        style = pStyle.attrib["val"]
         if style.isdigit():
             print("#" * (int(style)), sub_text, file=of)
         elif style[0] == "a":
             ilvl = self.get_first_element(node, ".//ilvl")
             if ilvl is None:
                 return
-            level = int(self.get_attr(ilvl, "val"))
+            level = int(ilvl.attrib["val"])
             print("    " * level + "*", sub_text, file=of)
         else:
             raise RuntimeError("pStyle: " + style)
@@ -261,7 +256,7 @@ class Converter:
         if blip is None:
             return
 
-        id = self.get_attr(blip, "embed")
+        id = blip.attrib["embed"]
         path = self.resources.get(id)
         if path is None:
             return
