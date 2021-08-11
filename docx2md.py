@@ -10,6 +10,7 @@ from docxmedia import DocxMedia
 PROG = "docx2md"
 VERSION = "1.0.0"
 
+
 def main():
     args = parse_args()
     docx = create_docx(args.src)
@@ -30,14 +31,34 @@ def main():
     save_md(args.dst, md_text)
     media.save(target_dir)
 
+
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("src", metavar="SRC", help="Microsoft Word file(.docx) to read")
-    parser.add_argument("dst", nargs="?", metavar="DST", help="Markdown file to write.  default is README.md", default="./README.md")
-    parser.add_argument("-m", "--md_table", action="store_true", help="use Markdown table notation instead of <table>", default=False)
-    parser.add_argument("-v", "--version", help="show version", action="version", version=f"{PROG} {VERSION}")
+    parser.add_argument(
+        "dst",
+        nargs="?",
+        metavar="DST",
+        help="Markdown file to write.  default is README.md",
+        default="./README.md",
+    )
+    parser.add_argument(
+        "-m",
+        "--md_table",
+        action="store_true",
+        help="use Markdown table notation instead of <table>",
+        default=False,
+    )
+    parser.add_argument(
+        "-v",
+        "--version",
+        help="show version",
+        action="version",
+        version=f"{PROG} {VERSION}",
+    )
     parser.add_argument("--debug", help="for debug", action="store_true", default=False)
     return parser.parse_args()
+
 
 def create_docx(file):
     try:
@@ -46,21 +67,24 @@ def create_docx(file):
         print(e)
         exit()
 
+
 def check_target_dir(file):
     dir = os.path.dirname(file)
     if dir == "":
         return
-    if  os.path.isdir(dir):
+    if os.path.isdir(dir):
         return
     if os.path.exists(dir):
         print(f"cannot write to {file}")
         exit()
     os.makedirs(dir)
-    
+
+
 def convert(docx, target_dir, media, use_md_table):
     xml_text = docx.document()
     converter = Converter(xml_text, media, use_md_table)
     return converter.convert()
+
 
 def save_xml(file, text):
     xml_file = os.path.splitext(file)[0] + ".xml"
@@ -69,13 +93,11 @@ def save_xml(file, text):
     open(xml_file, "wb").write(text)
     print("# save to", xml_file)
 
+
 def save_md(file, text):
     open(file, "w", encoding="utf-8").write(text)
     print(f"# save {file}")
 
+
 if __name__ == "__main__":
     main()
-
-
-
-

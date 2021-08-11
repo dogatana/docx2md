@@ -57,13 +57,13 @@ class DocxMedia:
     def save(self, target_dir):
         for media in self.hash.values():
             self.save_media(target_dir, media)
-    
+
     def save_media(self, target_dir, media):
         file = os.path.join(target_dir, media.path)
         print("# save", file)
         with open(file, "wb") as f:
             f.write(self.docx.read("word/" + media.path))
-        
+
         if media.use_alt:
             print("# convert", media.path, "to", media.alt_path)
             try:
@@ -72,7 +72,3 @@ class DocxMedia:
                 os.unlink(file)
             except:
                 print("# failed")
-
-
-
-

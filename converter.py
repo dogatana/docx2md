@@ -7,6 +7,7 @@ from lxml import etree
 
 import utils
 
+
 class Converter:
     def __init__(self, xml_text, media, use_md_table):
         self.tree = etree.fromstring(xml_text)
@@ -16,12 +17,14 @@ class Converter:
         self.table_counter = self.counter()
         self.use_md_table = use_md_table
 
-    def counter(self, start = 1):
+    def counter(self, start=1):
         count = start - 1
+
         def inc():
             nonlocal count
             count += 1
             return count
+
         return inc
 
     def convert(self):
@@ -36,7 +39,6 @@ class Converter:
     def get_first_element(self, node, xpath):
         tags = node.xpath(xpath)
         return tags[0] if len(tags) > 0 else None
-
 
     def get_sub_text(self, node):
         of = io.StringIO()
