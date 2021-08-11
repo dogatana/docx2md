@@ -34,12 +34,11 @@ def main():
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("src", metavar="SRC", help="Microsoft Word file(.docx) to read")
+    parser.add_argument("src", metavar="SRC.docx", help="Microsoft Word file to read")
     parser.add_argument(
         "dst",
-        nargs="?",
-        metavar="DST",
-        help="Markdown file to write.  default is README.md",
+        metavar="DST.md",
+        help="Markdown file to write",
         default="./README.md",
     )
     parser.add_argument(
