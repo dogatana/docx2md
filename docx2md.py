@@ -5,7 +5,7 @@ import argparse
 
 from docxfile import DocxFile, DocxFileError
 from converter import Converter
-from docxresources import DocxResources
+from docxmedia import DocxMedia
 from mediasaver import MediaSaver
 
 PROG = "docx2md"
@@ -26,8 +26,10 @@ def main():
         with open(xml_file, mode="wb") as f:
             f.write(xml_text)
 
-    md_text = convert(docx, target_dir, use_md_table=args.md_table, save_images=True)
+    media = DocxMedia(docx)
+    md_text = convert(docx, target_dir, media, args.md_table)
     save_md(args.dst, md_text)
+    media.save(target_dir)
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -56,19 +58,10 @@ def check_target_dir(file):
         exit()
     os.makedirs(dir)
     
-def convert(docx, target_dir, use_md_table, save_images=False):
+def convert(docx, target_dir, media, use_md_table):
     xml_text = docx.document()
-    if save_images:
-        saver = MediaSaver(docx, target_dir)
-        saver.save()
-
-    rels_text = docx.rels()
-    res = DocxResources(rels_text)
-
-    converter = Converter(xml_text, res, use_md_table=False)
-    md_text = converter.convert()
-
-    return md_text
+    converter = Converter(xml_text, media, use_md_table)
+    return converter.convert()
 
 def save_xml(file, text):
     xml_file = os.path.splitext(file)[0] + ".xml"
