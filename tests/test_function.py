@@ -14,6 +14,7 @@ class TestDocxFile(unittest.TestCase):
     def test_convert_table(self):
         self.diff("table")
     
+
     def diff(self, name):
         file = os.path.join("tests/data", name + ".docx")
 
@@ -26,6 +27,11 @@ class TestDocxFile(unittest.TestCase):
 
         self.assertEqual(md_result, md_text)
     
+    def convert(self, docx, target_dir, media, use_md_table):
+        xml_text = docx.document()
+        converter = docx2md.Converter(xml_text, media, use_md_table)
+        return converter.convert()
+
     def read_md(self, target_dir):
         file = os.path.join(target_dir, "README.md")
         with open(file, encoding="utf-8") as f:
