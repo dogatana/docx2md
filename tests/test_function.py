@@ -22,7 +22,7 @@ class TestDocxFile(unittest.TestCase):
 
         docx = docx2md.DocxFile(file)
         media = docx2md.DocxMedia(docx)
-        md_result = docx2md.convert(docx, target_dir, media, False)
+        md_result = self.convert(docx, target_dir, media, False)
         md_text = self.read_md(target_dir)
 
         self.assertEqual(md_result, md_text)
