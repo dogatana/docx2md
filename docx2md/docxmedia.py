@@ -5,7 +5,7 @@ import collections
 from lxml import etree
 from PIL import Image
 
-import utils
+from . import utils
 
 
 class Media:
@@ -55,6 +55,7 @@ class DocxMedia:
         return self.hash.get(id)
 
     def save(self, target_dir):
+        os.makedirs(os.path.join(target_dir, "media"), exist_ok=True)
         for media in self.hash.values():
             self.save_media(target_dir, media)
 

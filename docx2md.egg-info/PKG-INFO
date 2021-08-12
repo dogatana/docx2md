@@ -1,0 +1,32 @@
+Metadata-Version: 1.1
+Name: docx2md
+Version: 1.0.0
+Summary: convert .docx to .md
+Home-page: https://github.com/dogatana/docx2md
+Author: Toshihiko Ichida
+Author-email: dogatana@gmail.com
+License: UNKNOWN
+Description: 
+                convrt Microsoft Word's file to Markdown file with embedded images(s) if any.
+        
+                example:
+                python -m docx2md source.docx output_dir/README.md
+        
+                If source.docx has embedded images, they are stored in output_dir/media/
+            
+Platform: UNKNOWN
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: Environment :: Other Environment
+Classifier: Intended Audience :: Other Audience
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Topic :: Text Editors
+Classifier: Topic :: Text Editors :: Documentation
+Classifier: Topic :: Text Editors :: Word Processors
+Classifier: Topic :: Text Processing
+Classifier: Topic :: Text Processing :: Markup
+Classifier: Topic :: Text Processing :: Markup :: Markdown
+Classifier: Topic :: Utilities

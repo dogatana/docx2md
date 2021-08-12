@@ -5,7 +5,7 @@ import os.path
 
 from lxml import etree
 
-import utils
+from . import utils
 
 
 class Converter:

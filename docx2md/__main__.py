@@ -3,12 +3,13 @@ import os
 import os.path
 import argparse
 
-from docxfile import DocxFile, DocxFileError
-from converter import Converter
-from docxmedia import DocxMedia
+from .docxfile import DocxFile, DocxFileError
+from .converter import Converter
+from .docxmedia import DocxMedia
 
 PROG = "docx2md"
-VERSION = "1.0.0"
+import docx2md
+VERSION = f"{PROG} {docx2md.__version__}"
 
 
 def main():
@@ -19,21 +20,17 @@ def main():
 
     xml_text = docx.document()
     if args.debug:
-        # save word/document.xml in docx
-        xml_file = os.path.join(target_dir, "document.xml")
-        print(f"# save {xml_file}")
-        save_xml(xml_file, xml_text)
-        with open(xml_file, mode="wb") as f:
-            f.write(xml_text)
+        save_keyfile(docx, target_dir)
 
     media = DocxMedia(docx)
     md_text = convert(docx, target_dir, media, args.md_table)
     save_md(args.dst, md_text)
+
     media.save(target_dir)
 
 
 def parse_args():
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(prog=PROG)
     parser.add_argument("src", metavar="SRC.docx", help="Microsoft Word file to read")
     parser.add_argument(
         "dst",
@@ -53,7 +50,7 @@ def parse_args():
         "--version",
         help="show version",
         action="version",
-        version=f"{PROG} {VERSION}",
+        version=VERSION,
     )
     parser.add_argument("--debug", help="for debug", action="store_true", default=False)
     return parser.parse_args()
@@ -79,23 +76,26 @@ def check_target_dir(file):
     os.makedirs(dir)
 
 
+def save_keyfile(docx, target_dir):
+    def save_xml(file, text):
+        print("# save", file)
+        with open(file, "wb") as f:
+            f.write(text)
+
+    save_xml(os.path.join(target_dir, "document.xml"), docx.document())
+    save_xml(os.path.join(target_dir, "document.xml.rels"), docx.rels())
+
+
 def convert(docx, target_dir, media, use_md_table):
     xml_text = docx.document()
     converter = Converter(xml_text, media, use_md_table)
     return converter.convert()
 
 
-def save_xml(file, text):
-    xml_file = os.path.splitext(file)[0] + ".xml"
-    if os.path.exists(xml_file):
-        return
-    open(xml_file, "wb").write(text)
-    print("# save to", xml_file)
-
-
 def save_md(file, text):
-    open(file, "w", encoding="utf-8").write(text)
-    print(f"# save {file}")
+    print("# save", file)
+    with open(file, "w", encoding="utf-8") as f:
+        f.write(text)
 
 
 if __name__ == "__main__":
