@@ -9,6 +9,9 @@ init = os.path.join(os.path.dirname(__file__), "docx2md", "__init__.py")
 version_line = list(filter(lambda l: l.startswith("VERSION"), open(init)))[0]
 VERSION = get_version(eval(version_line.split("=")[-1]))
 
+readme = os.path.join(os.path.dirname(__file__), "README.rst")
+README = open(readme).read()
+
 setup(
     name="docx2md",
     version=VERSION,
@@ -17,14 +20,7 @@ setup(
     url="https://github.com/dogatana/docx2md",
     packages=["docx2md"],
     description="convert .docx to .md",
-    long_description="""
-        convrt Microsoft Word's file to Markdown file with embedded images(s) if any.
-
-        example:
-        python -m docx2md source.docx output_dir/README.md
-
-        If source.docx has embedded images, they are stored in output_dir/media/
-    """,
+    long_description=README,
     install_requires=[
         "lxml",
         "Pillow",

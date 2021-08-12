@@ -1,3 +1,7 @@
+MANIFEST.in
+README-jp.md
+README.md
+README.rst
 setup.py
 docx2md/__init__.py
 docx2md/__main__.py

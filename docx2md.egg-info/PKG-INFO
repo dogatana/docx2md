@@ -6,14 +6,155 @@ Home-page: https://github.com/dogatana/docx2md
 Author: Toshihiko Ichida
 Author-email: dogatana@gmail.com
 License: UNKNOWN
-Description: 
-                convrt Microsoft Word's file to Markdown file with embedded images(s) if any.
+Description: docx2md
         
-                example:
-                python -m docx2md source.docx output_dir/README.md
+        =======
         
-                If source.docx has embedded images, they are stored in output_dir/media/
-            
+        
+        
+        Converts Microsoft Word document files (.docx extension) to Markdown
+        
+        files.
+        
+        
+        
+        Install
+        
+        -------
+        
+        
+        
+        ::
+        
+        
+        
+           pip install docx2md
+        
+        
+        
+        How to use
+        
+        ----------
+        
+        
+        
+        ::
+        
+        
+        
+           usage: docx2md [-h] [-m] [-v] [--debug] SRC.docx DST.md
+        
+        
+        
+           positional arguments:
+        
+             SRC.docx        Microsoft Word file to read
+        
+             DST.md          Markdown file to write
+        
+        
+        
+           optional arguments:
+        
+             -h, --help      show this help message and exit
+        
+             -m, --md_table  use Markdown table notation instead of <table>
+        
+             -v, --version   show version
+        
+             --debug         for debug
+        
+        
+        
+        Tables
+        
+        ~~~~~~
+        
+        
+        
+        A table is output as ``<table id="table(n)">``. ``id`` is the order of
+        
+        output, starting from 1.
+        
+        
+        
+        If ``--md_table`` is specified, the output will use ``|``, but the title
+        
+        line item will be ``#`` fixed.
+        
+        
+        
+        ::
+        
+        
+        
+           | # | # | # |
+        
+           |---|---|---|
+        
+           |a|b|c|
+        
+           |d|e|f|
+        
+           |g|h|i|
+        
+        
+        
+        Pictures
+        
+        ~~~~~~~~
+        
+        
+        
+        Images will be output as ``<img id="image(n)">``. The ``id`` is output
+        
+        in order starting from 1.
+        
+        
+        
+        Elements that can be converted
+        
+        ------------------------------
+        
+        
+        
+        -  Tables (including merged cells)
+        
+        -  Lists (also with numbers as bullets)
+        
+        -  Headings
+        
+        -  Embedded images
+        
+        -  Page breaks (converted to ``<div class="break"></div>``)
+        
+        -  Line breaks within paragraphs (converted to ``<br>``)
+        
+        -  Text boxes (inserted in the body)
+        
+        
+        
+        Elements that cannot be converted (only known ones)
+        
+        ---------------------------------------------------
+        
+        
+        
+        -  Table of Contents
+        
+        -  Text decoration (bold and etc…)
+        
+        
+        
+        License
+        
+        -------
+        
+        
+        
+        MIT
+        
+        
 Platform: UNKNOWN
 Classifier: Programming Language :: Python
 Classifier: Programming Language :: Python :: 3
