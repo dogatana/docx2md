@@ -52,7 +52,7 @@ class DocxMedia:
         return id in self.hash
 
     def __getitem__(self, id):
-        return self.hash[id]
+        return self.hash.get(id)
 
     def get(self, id):
         return self.hash.get(id)
