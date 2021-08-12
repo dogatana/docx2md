@@ -82,21 +82,8 @@ class Converter:
                 print(child.text or " ", end="", file=of)
             elif tag == "drawing":
                 self.parse_drawing(of, child)
-            elif tag == "textbox":
-                # print("\n\n--\n")
-                self.parse_node(of, child)
-                # print("\n\n--\n")
             elif tag == "tbl":
                 self.parse_tbl(of, child)
-                # print("\n<table>", file=of)
-                # parse_node(of, child)
-                # print("</table>", file=of)
-            elif tag == "tr":
-                print("<tr>", file=of)
-                self.parse_node(of, child)
-                print("</tr>", file=of)
-            elif tag == "tc":
-                self.parse_tc(of, child)
             else:
                 self.parse_node(of, child)
 
@@ -254,10 +241,3 @@ class Converter:
 
         tag_id = f"image{self.image_counter()}"
         print(f'<img src="{self.media[embed_id].alt_path}" id="{tag_id}">', file=of)
-
-    def correct_image_path(self, path):
-        base, ext = os.path.splitext(path)
-        if ext.lower() in [".png", ".bmp", ".jpg", ".jpeg"]:
-            return path
-        else:
-            return base + ".png"
