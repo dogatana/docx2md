@@ -11,8 +11,38 @@ pip install docx2md
 ## How to use
 
 ```
-python -m docx2md SRC.docx DST.md
+usage: docx2md [-h] [-m] [-v] [--debug] SRC.docx DST.md
+
+positional arguments:
+  SRC.docx        Microsoft Word file to read
+  DST.md          Markdown file to write
+
+optional arguments:
+  -h, --help      show this help message and exit
+  -m, --md_table  use Markdown table notation instead of <table>
+  -v, --version   show version
+  --debug         for debug
 ```
+
+### Tables
+
+A table is output as ```<table id="table(n)">```. ```id``` is the order of output, starting from 1.
+
+If ```--md_table``` is specified, the output will use ```|```, but the title line item will be ```#``` fixed.
+
+```
+| # | # | # |
+|---|---|---|
+|a|b|c|
+|d|e|f|
+|g|h|i|
+```
+
+### Pictures
+
+Images will be output as ```<img id="image(n)">```. 
+The ```id``` is output in order starting from 1.
+
 
 ## Elements that can be converted
 
@@ -27,6 +57,7 @@ python -m docx2md SRC.docx DST.md
 ## Elements that cannot be converted (only known ones)
 
 * Table of Contents
+* Text decoration (bold and etc...)
 
 ## License
 

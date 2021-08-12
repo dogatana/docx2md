@@ -11,8 +11,39 @@ pip install docx2md
 ## 利用方法
 
 ```
-python -m docx2md SRC.docx DST.md
+usage: docx2md [-h] [-m] [-v] [--debug] SRC.docx DST.md
+
+positional arguments:
+  SRC.docx        Microsoft Word file to read
+  DST.md          Markdown file to write
+
+optional arguments:
+  -h, --help      show this help message and exit
+  -m, --md_table  use Markdown table notation instead of <table>
+  -v, --version   show version
+  --debug         for debug
 ```
+
+## 表について
+
+表は ```<table id="table(n)">``` で出力します。
+```id``` は 1から始まる出力順です。
+
+```--md_table``` を指定すると、```|``` を使用して出力しますが、タイトル行の項目は ```#``` 固定です。
+
+```
+| # | # | # |
+|---|---|---|
+|a|b|c|
+|d|e|f|
+|g|h|i|
+```
+
+## 画像について
+
+画像は ```<img id="image(n)">``` で出力します。
+```id``` は 1から始まる出力順です。
+
 
 ## 変換可能な要素
 
@@ -27,6 +58,7 @@ python -m docx2md SRC.docx DST.md
 ## 変換できないもの（分かっているもののみ）
 
 * 目次
+* 文字装飾
 
 ## ライセンス
 
