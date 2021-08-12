@@ -200,12 +200,13 @@ class Converter:
             raise RuntimeError("pStyle: " + style)
 
     def parse_drawing(self, of, node):
+        """ embeded pictures """
         blip = self.get_first_element(node, ".//blip")
         if blip is None:
             return
 
-        embed_id = blip.attrib["embed"]
-        if embed_id not in self.media:
+        embed_id = blip.attrib.get("embed")
+        if embed_id is None or embed_id not in self.media:
             return
 
         tag_id = f"image{self.image_counter()}"
