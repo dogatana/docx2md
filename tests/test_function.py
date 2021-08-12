@@ -8,12 +8,14 @@ class TestDocxFile(unittest.TestCase):
     def test_convert_paragrah(self):
         self.diff("paragraph")
 
+    def test_convert_list(self):
+        self.diff("list")
+
     def test_convert_heading(self):
         self.diff("heading")
     
     def test_convert_table(self):
         self.diff("table")
-    
 
     def diff(self, name):
         file = os.path.join("tests/data", name + ".docx")
