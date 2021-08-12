@@ -45,44 +45,26 @@ class Converter:
         self.parse_node(of, node)
         return of.getvalue().strip()
 
-    STOP_PARSING = [
-        "pPr",
-        "rPr",
-        "sectPr",
-        "pStyle",
-        "wPr",
-        "numPr",
-        "ind",
-        "shapetype",
-        "tab",
-        "sdt",
-    ]
-
     def parse_node(self, of, node):
-        if node.tag in self.STOP_PARSING:
+        if node is None:
             return
+
         for child in node.getchildren():
-            if child is None:
-                print("** none")
+            tag_name = child.tag
+            if tag_name == "sdt": # skip Table of Contents
                 continue
-            tag = child.tag
-            if tag in self.STOP_PARSING:
-                continue
-            if tag == "p":
+            elif tag_name == "p":
                 self.parse_p(of, child)
-            elif tag == "r":
-                self.parse_node(of, child)
-            elif tag == "br":
-                attr = ' class="page"'
+            elif tag_name == "br":
                 if child.attrib.get("type") == "page":
                     print('\n<div class="break"></div>\n', file=of)
                 else:
                     print("<br>", end="", file=of)
-            elif tag == "t":
+            elif tag_name == "t":
                 print(child.text or " ", end="", file=of)
-            elif tag == "drawing":
+            elif tag_name == "drawing":
                 self.parse_drawing(of, child)
-            elif tag == "tbl":
+            elif tag_name == "tbl":
                 self.parse_tbl(of, child)
             else:
                 self.parse_node(of, child)
@@ -183,19 +165,6 @@ class Converter:
                             break
                     properties[y][x]["merge_count"] += count
         return properties
-
-    def parse_tc(self, of, node):
-        sub_text = self.get_sub_text(node)
-        text = re.sub(r"\n+", "<br>", sub_text)
-
-        attr = ""
-        span = self.get_first_element(node, ".//gridSpan")
-        if span is not None:
-            val = span.attrib["val"]
-            attr = f' colspan="{val}"'
-        print(f"<td{attr}>", end="", file=of)
-        print(text, end="", file=of)
-        print("</td>", file=of)
 
     def parse_p(self, of, node):
         """parse paragraph"""
