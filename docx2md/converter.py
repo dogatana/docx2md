@@ -177,9 +177,7 @@ class Converter:
             print("", file=of)
             return
 
-        sub_of = io.StringIO()
-        self.parse_node(sub_of, node)
-        sub_text = sub_of.getvalue().strip()
+        sub_text = self.get_sub_text(node)
         if not sub_text:
             return
 
