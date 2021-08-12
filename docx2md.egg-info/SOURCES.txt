@@ -1,3 +1,4 @@
+LICENSE
 MANIFEST.in
 README-jp.md
 README.md
