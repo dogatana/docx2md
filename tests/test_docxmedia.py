@@ -9,9 +9,9 @@ class FakeDocxFile:
 
     def rels(self):
         return (
-            b'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><document>'
+            b'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships>'
             + self.text
-            + b"</document>"
+            + b"</Relationships>"
         )
 
 
