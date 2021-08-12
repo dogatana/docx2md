@@ -7,3 +7,6 @@ temp/
 *.xml
 tests/data/*
 
+dist/
+build/
+
