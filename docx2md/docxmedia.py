@@ -45,6 +45,9 @@ class DocxMedia:
             if id:
                 self.hash[id] = Media(id, path)
 
+    def __len__(self):
+        return len(self.hash)
+
     def __contains__(self, id):
         return id in self.hash
 
