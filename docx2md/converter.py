@@ -167,7 +167,7 @@ class Converter:
         return properties
 
     def parse_p(self, of, node):
-        """parse paragraph"""
+        """ paragraph, list, heading """
         pStyle = self.get_first_element(node, ".//pStyle")
         if pStyle is None:
             if self.in_list:
@@ -198,7 +198,7 @@ class Converter:
             raise RuntimeError("pStyle: " + style)
 
     def parse_drawing(self, of, node):
-        """ embeded pictures """
+        """ pictures """
         blip = self.get_first_element(node, ".//blip")
         if blip is None:
             return
@@ -208,4 +208,4 @@ class Converter:
             return
 
         tag_id = f"image{self.image_counter()}"
-        print(f'<img src="{self.media[embed_id].alt_path}" id="{tag_id}">', file=of)
+        print(f'<img src="{self.media[embed_id].alt_path}" id="{tag_id}">', end="", file=of)
