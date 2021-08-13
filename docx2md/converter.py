@@ -1,6 +1,7 @@
 import re
 import io
 import os.path
+import collections
 
 
 from lxml import etree
@@ -51,7 +52,7 @@ class Converter:
 
         for child in node.getchildren():
             tag_name = child.tag
-            if tag_name == "sdt": # skip Table of Contents
+            if tag_name == "sdt":  # skip Table of Contents
                 continue
             elif tag_name == "p":
                 self.parse_p(of, child)
@@ -101,22 +102,22 @@ class Converter:
     def emit_html_table(self, of, node, properties):
         id = f"table{self.table_counter()}"
         print(f'\n<table id="{id}">', file=of)
-        for y, tag_tr in enumerate(node.xpath(".//tr")):
+        for y, tr in enumerate(node.xpath(".//tr")):
             print("<tr>", file=of)
             x = 0
-            for tag_tc in tag_tr.xpath(".//tc"):
+            for tc in tr.xpath(".//tc"):
                 prop = properties[y][x]
-                colspan = prop["span"]
+                colspan = prop.span
                 attr = "" if colspan <= 1 else f' colspan="{colspan}"'
-                rowspan = prop["merge_count"]
+                rowspan = prop.merge_count
                 attr += "" if rowspan == 0 else f' rowspan="{rowspan}"'
 
-                sub_text = self.get_sub_text(tag_tc)
+                sub_text = self.get_sub_text(tc)
                 text = re.sub(r"\n+", "<br>", sub_text)
-                if not prop["merged"] or prop["merge_count"] != 0:
+                if not prop.merged or prop.merge_count != 0:
                     print(f"<td{attr}>{text}</td>", file=of)
                 x += colspan
-            gridAfter = self.get_first_element(tag_tr, ".//gridAfter")
+            gridAfter = self.get_first_element(tr, ".//gridAfter")
             if gridAfter is not None:
                 val = int(gridAfter.attrib["val"])
                 for _ in range(val):
@@ -125,49 +126,55 @@ class Converter:
         print("</table>", file=of)
 
     def get_table_properties(self, node):
+        CellProperty = collections.namedtuple(
+            "CellProperty", ["span", "merged", "merge_count"]
+        )
         properties = []
-        for tag_tr in node.xpath(".//tr"):
-            row_property = []
-            for tag_tc in tag_tr.xpath(".//tc"):
+        for tr in node.xpath(".//tr"):
+            row_properties = []
+            for tc in tr.xpath(".//tc"):
                 span = 1
-                gridSpan = self.get_first_element(tag_tc, ".//gridSpan")
+                gridSpan = self.get_first_element(tc, ".//gridSpan")
                 if gridSpan is not None:
                     span = int(gridSpan.attrib["val"])
                 merged = False
                 merge_count = 0
-                vMerge = self.get_first_element(tag_tc, ".//vMerge")
+                vMerge = self.get_first_element(tc, ".//vMerge")
                 if vMerge is not None:
                     merged = True
                     val = vMerge.attrib.get("val")
                     merge_count = 1 if val == "restart" else 0
-                prop = {"span": span, "merged": merged, "merge_count": merge_count}
-                row_property.append(prop)
-                copied_prop = prop.copy()
-                copied_prop["span"] = 0
+                prop = CellProperty(span, merged, merge_count)
+                row_properties.append(prop)
                 for _ in range(span - 1):
-                    row_property.append(copied_prop)
-            gridAfter = self.get_first_element(tag_tr, ".//gridAfter")
+                    row_properties.append(
+                        CellProperty(0, prop.merged, prop.merge_count)
+                    )
+            gridAfter = self.get_first_element(tr, ".//gridAfter")
             if gridAfter is not None:
                 val = int(gridAfter.attrib["val"])
                 for _ in range(val):
-                    row_property.append({"span": 1, "merged": False, "merge_count": 0})
-            properties.append(row_property)
+                    row_properties.append(CellProperty(1, False, 0))
+            properties.append(row_properties)
 
         for y in range(len(properties) - 1):
             for x in range(len(properties[0])):
-                if properties[y][x]["merge_count"] > 0:
+                prop = properties[y][x]
+                if prop.merge_count > 0:
                     count = 0
                     for ynext in range(y + 1, len(properties)):
                         cell = properties[ynext][x]
-                        if cell["merged"] and cell["merge_count"] == 0:
+                        if cell.merged and cell.merge_count == 0:
                             count += 1
-                        elif not cell["merged"] or cell["merge_count"] > 0:
+                        elif not cell.merged or cell.merge_count > 0:
                             break
-                    properties[y][x]["merge_count"] += count
+                    properties[y][x] = CellProperty(
+                        prop.span, prop.merged, prop.merge_count + count
+                    )
         return properties
 
     def parse_p(self, of, node):
-        """ paragraph, list, heading """
+        """paragraph, list, heading"""
         pStyle = self.get_first_element(node, ".//pStyle")
         if pStyle is None:
             if self.in_list:
@@ -198,7 +205,7 @@ class Converter:
             raise RuntimeError("pStyle: " + style)
 
     def parse_drawing(self, of, node):
-        """ pictures """
+        """pictures"""
         blip = self.get_first_element(node, ".//blip")
         if blip is None:
             return
@@ -208,4 +215,8 @@ class Converter:
             return
 
         tag_id = f"image{self.image_counter()}"
-        print(f'<img src="{self.media[embed_id].alt_path}" id="{tag_id}">', end="", file=of)
+        print(
+            f'<img src="{self.media[embed_id].alt_path}" id="{tag_id}">',
+            end="",
+            file=of,
+        )
