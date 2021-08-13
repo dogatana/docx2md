@@ -215,8 +215,4 @@ class Converter:
             return
 
         tag_id = f"image{self.image_counter()}"
-        print(
-            f'<img src="{self.media[embed_id].alt_path}" id="{tag_id}">',
-            end="",
-            file=of,
-        )
+        print(f'<img src="{self.media[embed_id].alt_path}" id="{tag_id}">', end="", file=of)
