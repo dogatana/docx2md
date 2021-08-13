@@ -17,6 +17,9 @@ class TestDocxFile(unittest.TestCase):
     def test_convert_table(self):
         self.diff("table")
 
+    def test_convert_image(self):
+        self.diff("image")
+
     def diff(self, name):
         file = os.path.join("tests/data", name + ".docx")
 

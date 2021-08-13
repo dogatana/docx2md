@@ -3,13 +3,7 @@ temp/
 ~*
 .~*
 *.pyc
-*.md
 *.xml
-tests/data/*
 
 dist/
 build/
-
-!README.md
-!README-jp.md
-

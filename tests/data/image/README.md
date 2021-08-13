@@ -1,0 +1,1 @@
+<img src="media/image1.png" id="image1"><img src="media/image2.png" id="image2"><img src="media/image3.gif" id="image3">
