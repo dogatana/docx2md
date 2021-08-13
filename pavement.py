@@ -14,6 +14,7 @@ FUNCTION_TEST = "test_function.py"
 README_MD = "README.md"
 README_RST = "README.rst"
 
+
 @task
 @consume_args
 def test(args):
@@ -36,16 +37,18 @@ def rst():
     if not os.path.exists(README_RST):
         print("generate", README_RST)
         convert(README_MD, README_RST)
-    elif mtime(README_RST) >= mtime(README_MD):
+    elif mtime(README_RST) < mtime(README_MD):
         print("update", README_RST)
         convert(README_MD, README_RST)
+
 
 def mtime(file):
     return os.stat(file).st_mtime
 
+
 def convert(md_file, rst_file):
-    with open(md_file) as f:
-        f.write(pypandoc.convert(rst_file, "rst"))
+    with open(rst_file, "w") as f:
+        f.write(pypandoc.convert(md_file, "rst"))
 
 
 def collect_unittests(dir):
