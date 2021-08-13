@@ -9,6 +9,7 @@ from .docxmedia import DocxMedia
 
 PROG = "docx2md"
 import docx2md
+
 VERSION = f"{PROG} {docx2md.__version__}"
 
 
