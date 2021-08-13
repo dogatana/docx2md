@@ -5,5 +5,4 @@ temp/
 *.pyc
 *.xml
 
-dist/
 build/
