@@ -1,6 +1,6 @@
 Metadata-Version: 1.1
 Name: docx2md
-Version: 1.0.0
+Version: 1.0.1
 Summary: convert .docx to .md
 Home-page: https://github.com/dogatana/docx2md
 Author: Toshihiko Ichida
@@ -42,7 +42,7 @@ Description: docx2md
         
         
         
-           usage: docx2md [-h] [-m] [-v] [--debug] SRC.docx DST.md
+           usage: python -m docx2md [-h] [-m] [-v] [--debug] SRC.docx DST.md
         
         
         
@@ -109,6 +109,18 @@ Description: docx2md
         Images will be output as ``<img id="image(n)">``. The ``id`` is output
         
         in order starting from 1.
+        
+        
+        
+        Examples
+        
+        --------
+        
+        
+        
+        -  source: `docx <example/example.docx>`__
+        
+        -  result: `Markdown <example/example/README.md>`__
         
         
         
