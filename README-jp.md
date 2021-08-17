@@ -44,6 +44,11 @@ optional arguments:
 画像は ```<img id="image(n)">``` で出力します。
 ```id``` は 1から始まる出力順です。
 
+## 変換例
+
+* source: [docx](example/example.docx)
+* result: [Markdown](example/example/README.md)
+
 
 ## 変換可能な要素
 

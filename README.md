@@ -47,7 +47,7 @@ The ```id``` is output in order starting from 1.
 ## Examples
 
 * source: [docx](example/example.docx)
-* result: [Markdown](example/example/ERADME.md)
+* result: [Markdown](example/example/README.md)
 
 ## Elements that can be converted
 

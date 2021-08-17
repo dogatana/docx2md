@@ -55,7 +55,7 @@ Examples
 --------
 
 -  source: `docx <example/example.docx>`__
--  result: `Markdown <example/example/ERADME.md>`__
+-  result: `Markdown <example/example/README.md>`__
 
 Elements that can be converted
 ------------------------------
