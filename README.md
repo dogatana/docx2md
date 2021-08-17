@@ -11,7 +11,7 @@ pip install docx2md
 ## How to use
 
 ```
-usage: docx2md [-h] [-m] [-v] [--debug] SRC.docx DST.md
+usage: python -m docx2md [-h] [-m] [-v] [--debug] SRC.docx DST.md
 
 positional arguments:
   SRC.docx        Microsoft Word file to read
@@ -43,6 +43,11 @@ If ```--md_table``` is specified, the output will use ```|```, but the title lin
 Images will be output as ```<img id="image(n)">```. 
 The ```id``` is output in order starting from 1.
 
+
+## Examples
+
+* source: [docx](example/example.docx)
+* result: [Markdown](example/example/ERADME.md)
 
 ## Elements that can be converted
 

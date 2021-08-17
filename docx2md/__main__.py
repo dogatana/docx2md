@@ -29,9 +29,10 @@ def main():
 
     media.save(target_dir)
 
+USAGE = "python -m docx2md [-h] [-m] [-v] [--debug] SRC.docx DST.md"
 
 def parse_args():
-    parser = argparse.ArgumentParser(prog=PROG)
+    parser = argparse.ArgumentParser(prog=PROG, usage=USAGE)
     parser.add_argument("src", metavar="SRC.docx", help="Microsoft Word file to read")
     parser.add_argument(
         "dst",

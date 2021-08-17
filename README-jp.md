@@ -11,7 +11,7 @@ pip install docx2md
 ## 利用方法
 
 ```
-usage: docx2md [-h] [-m] [-v] [--debug] SRC.docx DST.md
+usage: python -m docx2md [-h] [-m] [-v] [--debug] SRC.docx DST.md
 
 positional arguments:
   SRC.docx        Microsoft Word file to read
