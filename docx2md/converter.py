@@ -46,29 +46,121 @@ class Converter:
         self.parse_node(of, node)
         return of.getvalue().strip()
 
+    # {'sectPr', 'tbl', 'bookmarkEnd', 'moveToRangeEnd', 'bookmarkStart', 'commentRangeStart', 'moveFromRangeEnd', 'sdt', 'p'}
+    BODY_IGNORE = [
+        "sectPr",
+        # "tbl",
+        # "p"}
+        "bookmarkStart",
+        "bookmarkEnd",
+        "moveToRangeEnd",
+        "commentRangeStart",
+        "moveFromRangeEnd",
+        "sdt"
+    ]
     def parse_node(self, of, node):
-        if node is None:
-            return
-
         for child in node.getchildren():
             tag_name = child.tag
-            if tag_name == "sdt":  # skip Table of Contents
+            if tag_name in self.BODY_IGNORE:
                 continue
             elif tag_name == "p":
                 self.parse_p(of, child)
-            elif tag_name == "br":
-                if child.attrib.get("type") == "page":
-                    print('\n<div class="break"></div>\n', file=of)
-                else:
-                    print("<br>", end="", file=of)
-            elif tag_name == "t":
-                print(child.text or " ", end="", file=of)
-            elif tag_name == "drawing":
-                self.parse_drawing(of, child)
             elif tag_name == "tbl":
                 self.parse_tbl(of, child)
             else:
-                self.parse_node(of, child)
+                print("# **", tag_name)
+
+            # elif tag_name == "br":
+            #     if child.attrib.get("type") == "page":
+            #         print('\n<div class="break"></div>\n', file=of)
+            #     else:
+            #         print("<br>", end="", file=of)
+            # elif tag_name == "t":
+            #     print(child.text or " ", end="", file=of)
+            # elif tag_name == "drawing":
+            #     self.parse_drawing(of, child)
+            # else:
+            #     self.parse_node(of, child)
+
+    P_IGNORE = [
+        # "ins", "r",
+        "pPr", "sdt", "moveFrom", "moveTo", "hyperlink", "del", "proofErr", "moveToRangeStart", "commentRangeStart", "commentRangeEnd", "bookmarkStart", "bookmarkEnd", "moveFromRangeStart", "moveFromRangeEnd"
+    ]
+    def parse_p(self, of, node):
+        def out_p(text):
+            print("", file=of)
+            print(text, file=of)
+            print("", file=of)
+
+        sub_text = self.parse_p_text(node)
+
+        pStyle = self.get_first_element(node, "./pPr/pStyle")
+        if pStyle is None:
+            if self.in_list:
+                self.in_list = False
+            out_p(sub_text)
+            return
+
+        style = pStyle.attrib["val"]
+        if style.isdigit():
+            print("#" * (int(style)), sub_text, file=of)
+        elif style[0] == "a":
+            ilvl = self.get_first_element(node, ".//ilvl")
+            if ilvl is None:
+                return
+            level = int(ilvl.attrib["val"])
+            print("    " * level + "*", sub_text, file=of)
+        else:
+            out_p(sub_text)
+
+    def parse_p_text(self, node):
+        of = io.StringIO()
+        for r in node.xpath("./r|./ins/r"):
+            self.parse_r(of, r)
+        return of.getvalue()
+
+    R_IGNORE = [
+        # "pict", "t", "br", "drawing",
+        "tab", "lastRenderedPageBreak", "rPr", "instrText", "delText", "fldChar"
+    ]
+    def parse_r(self, of, node):
+        for child in node.getchildren():
+            tag_name = child.tag
+            if tag_name == "t":
+                text = child.text or " "
+                text = text.replace("\u00a0", "&nbsp;")
+                print(text, end="", file=of)
+            elif tag_name == "br":
+                if child.attrib.get("type") == "page":
+                    print('<div class="page"></div>', file=of)
+                else:
+                    print("<br>", end="", file=of)
+            elif tag_name == "drawing":
+                blip = self.get_first_element(child, ".//blip")
+                if blip is None:
+                    print("[parse_r]", tag_name)
+                    continue
+                id = blip.attrib.get("embed")
+                if id is None:
+                    print("[parse_r]", tag_name)
+                    continue
+                self.emit_image(of, id)
+            elif tag_name == "object":
+                imagedata = self.get_first_element(child, ".//imagedata")
+                if imagedata is None:
+                    print("[parse_r]", tag_name)
+                    continue
+                id = imagedata.attrib.get("id")
+                if id is None:
+                    print("[parse_r]", tag_name)
+                    continue
+                self.emit_image(of, id)
+            elif tag_name == "pict":
+                print("<{tag_name}>", end="", file=of)
+            elif tag_name in self.R_IGNORE:
+                continue
+            else:
+                print("[parse_r]", tag_name)
 
     def parse_tbl(self, of, node):
         properties = self.get_table_properties(node)
@@ -173,36 +265,7 @@ class Converter:
                     )
         return properties
 
-    def parse_p(self, of, node):
-        """paragraph, list, heading"""
-        pStyle = self.get_first_element(node, ".//pStyle")
-        if pStyle is None:
-            if self.in_list:
-                self.in_list = False
-            print("", file=of)
-            self.parse_node(of, node)
-            print("", file=of)
-            return
 
-        sub_text = self.get_sub_text(node)
-        if not sub_text:
-            return
-
-        if not self.in_list:
-            print("", file=of)
-            self.in_list = True
-
-        style = pStyle.attrib["val"]
-        if style.isdigit():
-            print("#" * (int(style)), sub_text, file=of)
-        elif style[0] == "a":
-            ilvl = self.get_first_element(node, ".//ilvl")
-            if ilvl is None:
-                return
-            level = int(ilvl.attrib["val"])
-            print("    " * level + "*", sub_text, file=of)
-        else:
-            raise RuntimeError("pStyle: " + style)
 
     def parse_drawing(self, of, node):
         """pictures"""
@@ -216,3 +279,7 @@ class Converter:
 
         tag_id = f"image{self.image_counter()}"
         print(f'<img src="{self.media[embed_id].alt_path}" id="{tag_id}">', end="", file=of)
+
+    def emit_image(self, of, id):
+        tag_id = f"image{self.image_counter()}"
+        print(f'<img src="{self.media[id].alt_path}" id="{tag_id}">', end="", file=of)

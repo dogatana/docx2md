@@ -2,6 +2,7 @@ import sys
 import os
 import os.path
 import argparse
+import re
 
 from .docxfile import DocxFile, DocxFileError
 from .converter import Converter
@@ -25,6 +26,7 @@ def main():
 
     media = DocxMedia(docx)
     md_text = convert(docx, target_dir, media, args.md_table)
+    # md_text = re.sub(r"\n{2,}( *\* )", "\n\\1", md_text)
     save_md(args.dst, md_text)
 
     media.save(target_dir)
