@@ -1,11 +1,8 @@
-import sys
-import os
-import os.path
 import argparse
-import re
+import os
 
-from .docxfile import DocxFile, DocxFileError
 from .converter import Converter
+from .docxfile import DocxFile
 from .docxmedia import DocxMedia
 
 PROG = "docx2md"
@@ -20,7 +17,6 @@ def main():
     check_target_dir(args.dst)
     target_dir = os.path.dirname(args.dst)
 
-    xml_text = docx.document()
     if args.debug:
         save_keyfile(docx, target_dir)
 
@@ -31,7 +27,9 @@ def main():
 
     media.save(target_dir)
 
+
 USAGE = "python -m docx2md [-h] [-m] [-v] [--debug] SRC.docx DST.md"
+
 
 def parse_args():
     parser = argparse.ArgumentParser(prog=PROG, usage=USAGE)

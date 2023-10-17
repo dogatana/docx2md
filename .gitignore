@@ -4,5 +4,6 @@ temp/
 .~*
 *.pyc
 *.xml
+*.md
 
 build/

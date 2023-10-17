@@ -1,6 +1,4 @@
 import os
-import os.path
-import collections
 
 from lxml import etree
 from PIL import Image
@@ -74,5 +72,5 @@ class DocxMedia:
                 im = Image.open(file)
                 im.save(os.path.join(target_dir, media.alt_path))
                 os.unlink(file)
-            except:
-                print("# failed")
+            except Exception as err:
+                print(f"# failed {err}")

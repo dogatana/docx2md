@@ -1,8 +1,6 @@
-import re
-import io
-import os.path
 import collections
-
+import io
+import re
 
 from lxml import etree
 
@@ -56,8 +54,9 @@ class Converter:
         "moveToRangeEnd",
         "commentRangeStart",
         "moveFromRangeEnd",
-        "sdt"
+        "sdt",
     ]
+
     def parse_node(self, of, node):
         for child in node.getchildren():
             tag_name = child.tag
@@ -84,8 +83,22 @@ class Converter:
 
     P_IGNORE = [
         # "ins", "r",
-        "pPr", "sdt", "moveFrom", "moveTo", "hyperlink", "del", "proofErr", "moveToRangeStart", "commentRangeStart", "commentRangeEnd", "bookmarkStart", "bookmarkEnd", "moveFromRangeStart", "moveFromRangeEnd"
+        "pPr",
+        "sdt",
+        "moveFrom",
+        "moveTo",
+        "hyperlink",
+        "del",
+        "proofErr",
+        "moveToRangeStart",
+        "commentRangeStart",
+        "commentRangeEnd",
+        "bookmarkStart",
+        "bookmarkEnd",
+        "moveFromRangeStart",
+        "moveFromRangeEnd",
     ]
+
     def parse_p(self, of, node):
         def out_p(text):
             print("", file=of)
@@ -121,8 +134,14 @@ class Converter:
 
     R_IGNORE = [
         # "pict", "t", "br", "drawing",
-        "tab", "lastRenderedPageBreak", "rPr", "instrText", "delText", "fldChar"
+        "tab",
+        "lastRenderedPageBreak",
+        "rPr",
+        "instrText",
+        "delText",
+        "fldChar",
     ]
+
     def parse_r(self, of, node):
         for child in node.getchildren():
             tag_name = child.tag
@@ -265,8 +284,6 @@ class Converter:
                     )
         return properties
 
-
-
     def parse_drawing(self, of, node):
         """pictures"""
         blip = self.get_first_element(node, ".//blip")
@@ -278,7 +295,11 @@ class Converter:
             return
 
         tag_id = f"image{self.image_counter()}"
-        print(f'<img src="{self.media[embed_id].alt_path}" id="{tag_id}">', end="", file=of)
+        print(
+            f'<img src="{self.media[embed_id].alt_path}" id="{tag_id}">',
+            end="",
+            file=of,
+        )
 
     def emit_image(self, of, id):
         tag_id = f"image{self.image_counter()}"
