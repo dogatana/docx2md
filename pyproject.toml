@@ -1,0 +1,37 @@
+[project]
+name = "docx2md"
+version = "0.2.1"
+authors = [{ name = "dogatana", email = "dogatana@gmail.com" }]
+description = "convert .docx to .md"
+readme = "README.md"
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Environment :: Other Environment",
+    "Intended Audience :: Other Audience",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: Text Editors",
+    "Topic :: Text Editors :: Documentation",
+    "Topic :: Text Editors :: Word Processors",
+    "Topic :: Text Processing",
+    "Topic :: Text Processing :: Markup",
+    "Topic :: Text Processing :: Markup :: Markdown",
+    "Topic :: Utilities",
+]
+license-files = ["LICENSE"]
+
+dependencies = ["lxml", "Pillow"]
+
+[project.scripts]
+docx2md = "docx2md.__main__:main"
+
+[project.optional-dependencies]
+dev = ["build", "twine"]
+
+[project.urls]
+"Homepage" = "https://github.com/dogatana/docx2md"
+"Bug Tracker" = "https://github.com/dogatana/docx2md/issues"

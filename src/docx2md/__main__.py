@@ -1,14 +1,12 @@
 import argparse
-import os
+import os.path
 
 from .converter import Converter
 from .docxfile import DocxFile
 from .docxmedia import DocxMedia
+from .version import VERSION
 
-PROG = "docx2md"
-import docx2md
-
-VERSION = f"{PROG} {docx2md.__version__}"
+PROG = os.path.basename(os.path.dirname(__file__))
 
 
 def main():
@@ -28,11 +26,8 @@ def main():
     media.save(target_dir)
 
 
-USAGE = "python -m docx2md [-h] [-m] [-v] [--debug] SRC.docx DST.md"
-
-
 def parse_args():
-    parser = argparse.ArgumentParser(prog=PROG, usage=USAGE)
+    parser = argparse.ArgumentParser(prog=PROG)
     parser.add_argument("src", metavar="SRC.docx", help="Microsoft Word file to read")
     parser.add_argument(
         "dst",

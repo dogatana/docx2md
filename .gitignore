@@ -1,10 +1,13 @@
-sample/
-temp/
 ~*
 .~*
 *.pyc
 *.xml
 *.md
 
-build/
+temp/
+venv/
+
+src/docx2md.egg-info/
 dist/
+
+
