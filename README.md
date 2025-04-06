@@ -2,6 +2,8 @@
 
 Converts Microsoft Word document files (.docx extension) to Markdown files.
 
+[Japanese](jp-README.md)
+
 ## Install
 
 ```
@@ -66,4 +68,8 @@ The ```id``` is output in order starting from 1.
 
 ## License
 
-MIT
+[MIT](LINCENSE)
+
+## Changelog
+
+- 1.0.2 change packaging system to pyproject.toml
