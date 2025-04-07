@@ -4,13 +4,13 @@ Converts Microsoft Word document files (.docx extension) to Markdown files.
 
 [Japanese](jp-README.md)
 
-## Install
+## 1. Install
 
 ```
 pip install docx2md
 ```
 
-## How to use
+## 2. How to use
 
 ```
 usage: docx2md [-h] [-m] [-v] [--debug] SRC.docx DST.md
@@ -26,7 +26,7 @@ optional arguments:
   --debug         for debug
 ```
 
-### Tables
+## 3. Tables
 
 A table is output as ```<table id="table(n)">```. ```id``` is the order of output, starting from 1.
 
@@ -40,18 +40,18 @@ If ```--md_table``` is specified, the output will use ```|```, but the title lin
 |g|h|i|
 ```
 
-### Pictures
+## 4. Pictures
 
 Images will be output as ```<img id="image(n)">```. 
 The ```id``` is output in order starting from 1.
 
 
-## Examples
+## 5. Examples
 
-* source: [docx](example/example.docx)
-* result: [Markdown](example/example/README.md)
+* source: [example/example.docx](example/example.docx)
+* result: [example/README.me](example/README.md), example/media/*
 
-## Elements that can be converted
+## 6. Elements that can be converted
 
 * Tables (including merged cells)
 * Lists (also with numbers as bullets)
@@ -61,15 +61,58 @@ The ```id``` is output in order starting from 1.
 * Line breaks within paragraphs (converted to ```<br>```)
 * Text boxes (inserted in the body)
 
-## Elements that cannot be converted (only known ones)
+## 7. Elements that cannot be converted (only known ones)
 
 * Table of Contents
 * Text decoration (bold and etc...)
 
-## License
+## 8. API
+
+### 8.1. function
+
+- docx2md.do_convert
+
+```
+>>> help(docx2md.do_convert)
+Help on function do_convert in module docx2md.convert:
+
+do_convert(docx_file: str, target_dir='', use_md_table=False) -> str
+    convert docx_file to Markdown text and return it
+
+    Args:
+        docx_file(str): a file to parse
+        target_dir(str): save images into target_dir/media/ if specified
+        use_md_table(bool): use Markdown table notation instead of HTHML
+    Returns:
+        Markdown text(str)
+```
+
+### 8.2. class
+
+- docx2md.DocxFile
+- docx2md.DocxMedia
+- docx2md.Converter
+
+Refer to the do_convert implementation for the usage of each class.
+
+```python
+def do_convert(docx_file: str, target_dir="", use_md_table=False)  -> str:
+    try:
+        docx = DocxFile(docx_file)
+        media = DocxMedia(docx)
+        if target_dir:
+            media.save(target_dir)
+        converter = Converter(docx.document(), media, use_md_table)
+        return converter.convert()
+    except Exception as e:
+        return f"Exception: {e}"
+```
+
+## 9. License
 
 [MIT](LINCENSE)
 
-## Changelog
+## 10. Changelog
 
+- 1.0.3 add API
 - 1.0.2 change packaging system to pyproject.toml
