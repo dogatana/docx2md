@@ -67,11 +67,12 @@ class Converter:
             elif tag_name == "tbl":
                 self.parse_tbl(of, child)
             else:
-                print("# **", tag_name)
+                print("# ** skip", tag_name)
 
             # elif tag_name == "br":
             #     if child.attrib.get("type") == "page":
             #         print('\n<div class="break"></div>\n', file=of)
+            
             #     else:
             #         print("<br>", end="", file=of)
             # elif tag_name == "t":
