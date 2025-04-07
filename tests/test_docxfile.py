@@ -1,6 +1,6 @@
 import unittest
 
-from docx2md import DocxFileError, DocxFile
+from src.docx2md.docxfile import DocxFileError, DocxFile
 
 class TestDocxFile(unittest.TestCase):
 

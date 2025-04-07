@@ -1,6 +1,6 @@
 import unittest
 
-from docx2md import DocxMedia
+from src.docx2md.docxmedia import DocxMedia
 
 
 class FakeDocxFile:

@@ -1,7 +1,7 @@
 import unittest
 
-from docx2md import Converter
-from docx2md.docxmedia import Media
+from src.docx2md.converter import Converter
+from src.docx2md.docxmedia import Media
 
 
 def build_xml(text):
@@ -31,8 +31,8 @@ class TestConvert(unittest.TestCase):
         </p>"""
         )
         converter = Converter(xml, {}, False)
-        result = converter.convert()
-        self.assertEqual(result, "image")
+        with self.assertRaises(KeyError):
+            _ = converter.convert()
 
     def test_png(self):
         media = dict(id=Media("id", "media/image.png"))

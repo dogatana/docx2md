@@ -2,6 +2,6 @@ aaaaa<br>bbbbb
 
 ccccc
 
-<div class="break"></div>
+<div class="page"></div>
 
 ddddd

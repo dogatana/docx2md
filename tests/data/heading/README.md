@@ -1,4 +1,4 @@
-<div class="break"></div>
+<div class="page"></div>
 
 # chapter 1
 

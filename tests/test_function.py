@@ -1,7 +1,9 @@
 import unittest
 import os.path
 
-import docx2md
+from src.docx2md.converter import Converter
+from src.docx2md.docxfile import DocxFile
+from src.docx2md.docxmedia import DocxMedia
 
 class TestDocxFile(unittest.TestCase):
 
@@ -25,8 +27,8 @@ class TestDocxFile(unittest.TestCase):
 
         target_dir = os.path.splitext(file)[0]
 
-        docx = docx2md.DocxFile(file)
-        media = docx2md.DocxMedia(docx)
+        docx = DocxFile(file)
+        media = DocxMedia(docx)
         md_result = self.convert(docx, target_dir, media, False)
         md_text = self.read_md(target_dir)
 
@@ -34,7 +36,7 @@ class TestDocxFile(unittest.TestCase):
     
     def convert(self, docx, target_dir, media, use_md_table):
         xml_text = docx.document()
-        converter = docx2md.Converter(xml_text, media, use_md_table)
+        converter = Converter(xml_text, media, use_md_table)
         return converter.convert()
 
     def read_md(self, target_dir):
