@@ -9,7 +9,7 @@ def do_convert(docx_file: str, target_dir="", use_md_table=False)  -> str:
     
     Args:
         docx_file(str): a file to parse
-        target_dir(str): save images of .docx if specified
+        target_dir(str): save images into target_dir/media/ if specified
         use_md_table(bool): use Markdown table notation instead of HTHML
     Returns:
         Markdown text(str)
