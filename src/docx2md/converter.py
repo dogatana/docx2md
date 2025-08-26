@@ -69,19 +69,6 @@ class Converter:
             else:
                 print("# ** skip", tag_name)
 
-            # elif tag_name == "br":
-            #     if child.attrib.get("type") == "page":
-            #         print('\n<div class="break"></div>\n', file=of)
-            
-            #     else:
-            #         print("<br>", end="", file=of)
-            # elif tag_name == "t":
-            #     print(child.text or " ", end="", file=of)
-            # elif tag_name == "drawing":
-            #     self.parse_drawing(of, child)
-            # else:
-            #     self.parse_node(of, child)
-
     P_IGNORE = [
         # "ins", "r",
         "pPr",
