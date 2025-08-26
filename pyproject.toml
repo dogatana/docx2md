@@ -1,6 +1,6 @@
 [project]
 name = "docx2md"
-version = "1.0.3"
+version = "1.0.4"
 authors = [{ name = "dogatana", email = "dogatana@gmail.com" }]
 description = "convert .docx to .md"
 readme = "README.md"

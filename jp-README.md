@@ -114,5 +114,6 @@ def do_convert(docx_file: str, target_dir="", use_md_table=False)  -> str:
 
 ## 10. 更新履歴
 
+- 1.0.4 issue #6 修正
 - 1.0.3 API 追加
 - 1.0.2 パッケージングシステムを pyproject.toml へ変更
