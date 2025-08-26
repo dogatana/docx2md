@@ -3,10 +3,10 @@ from .docxfile import DocxFile
 from .docxmedia import DocxMedia
 
 
-def do_convert(docx_file: str, target_dir="", use_md_table=False)  -> str:
+def do_convert(docx_file: str, target_dir="", use_md_table=False) -> str:
     """
     convert docx_file to Markdown text and return it
-    
+
     Args:
         docx_file(str): a file to parse
         target_dir(str): save images into target_dir/media/ if specified
