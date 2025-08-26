@@ -95,6 +95,11 @@ class Converter:
 
         sub_text = self.parse_p_text(node)
 
+        # fix issue #6
+        if node.getparent().tag != "body":
+            out_p(sub_text)
+            return
+
         pStyle = self.get_first_element(node, "./pPr/pStyle")
         if pStyle is None:
             if self.in_list:
