@@ -108,6 +108,10 @@ class Converter:
             return
 
         style = pStyle.attrib["val"]
+        # im having issues with this as style comes as "Heading<digit>"
+        # maybe not pure MS-docx but google-worksuite generated docx?
+        if "Heading" in style:
+            style = style.replace("Heading", "")
         if style.isdigit():
             print("#" * (int(style)), sub_text, file=of)
         elif style[0] == "a":
@@ -297,3 +301,4 @@ class Converter:
     def emit_image(self, of, id):
         tag_id = f"image{self.image_counter()}"
         print(f'<img src="{self.media[id].alt_path}" id="{tag_id}">', end="", file=of)
+
